@@ -1,0 +1,135 @@
+/* Reset some default browser spacing so we have full control */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, Roboto, Arial, sans-serif;
+}
+
+body {
+  background-color: #f4f5f7;
+  color: #1a1a1a;
+  padding-bottom: 90px; /* leaves room for the floating + button */
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  background-color: #2e7d32;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
+
+.app-header h1 {
+  font-size: 20px;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+  padding: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===== DASHBOARD SUMMARY CARDS ===== */
+.summary-cards {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.card {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.card-label {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.card-amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+/* ===== RECENT EXPENSES ===== */
+.recent-expenses h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.empty-text {
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ===== ADD EXPENSE SCREEN ===== */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: #2e7d32;
+  font-size: 15px;
+}
+
+#expense-form label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+#expense-form input,
+#expense-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+}
+
+.primary-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* ===== FLOATING + BUTTON ===== */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #2e7d32;
+  color: white;
+  font-size: 28px;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
