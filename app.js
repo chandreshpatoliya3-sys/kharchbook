@@ -142,21 +142,40 @@ deleteBtn.addEventListener('click', function () {
 });
 
 // ===== RENDER: DASHBOARD RECENT EXPENSES =====
-function renderRecentExpenses() {
-  const expenses = loadExpenses();
-  const container = document.querySelector('.recent-expenses');
+function renderFullList() {
+  let expenses = loadExpenses();
+
+  // Apply search (checks the note text, case-insensitive)
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  if (searchTerm !== '') {
+    expenses = expenses.filter(function (exp) {
+      return exp.note && exp.note.toLowerCase().includes(searchTerm);
+    });
+  }
+
+  // Apply category filter
+  const categoryValue = filterCategory.value;
+  if (categoryValue !== '') {
+    expenses = expenses.filter(function (exp) { return exp.category === categoryValue; });
+  }
+
+  // Apply date filter
+  const dateValue = filterDate.value;
+  if (dateValue !== '') {
+    expenses = expenses.filter(function (exp) { return exp.date === dateValue; });
+  }
 
   if (expenses.length === 0) {
-    container.innerHTML = '<h2>Recent Expenses</h2><p class="empty-text">No expenses yet. Tap + to add one.</p>';
+    listContainer.innerHTML = '<p class="empty-text">No matching expenses found.</p>';
     return;
   }
 
-  const recent = expenses.slice().reverse().slice(0, 5);
-  let html = '<h2>Recent Expenses</h2>';
-  recent.forEach(function (exp) { html += buildExpenseItemHTML(exp); });
+  const sorted = expenses.slice().reverse();
+  let html = '';
+  sorted.forEach(function (exp) { html += buildExpenseItemHTML(exp); });
 
-  container.innerHTML = html;
-  attachExpenseClickHandlers(container, expenses);
+  listContainer.innerHTML = html;
+  attachExpenseClickHandlers(listContainer, expenses);
 }
 
 // ===== RENDER: FULL LIST SCREEN =====
