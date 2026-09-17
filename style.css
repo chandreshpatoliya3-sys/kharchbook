@@ -9,7 +9,7 @@
 body {
   background-color: #f4f5f7;
   color: #1a1a1a;
-  padding-bottom: 90px; /* leaves room for the floating + button */
+  padding-bottom: 130px; /* leaves room for the floating + button */
 }
 
 /* ===== HEADER ===== */
@@ -122,7 +122,7 @@ body {
 /* ===== FLOATING + BUTTON ===== */
 .fab {
   position: fixed;
-  bottom: 24px;
+  bottom: 84px;
   right: 24px;
   width: 56px;
   height: 56px;
@@ -160,4 +160,51 @@ body {
   font-weight: bold;
   color: #2e7d32;
   font-size: 15px;
+}
+
+/* ===== BOTTOM NAVIGATION ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.nav-btn {
+  flex: 1;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #999;
+}
+
+.nav-btn.active {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* ===== DELETE BUTTON ===== */
+.delete-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  background-color: white;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+/* ===== LIST SCREEN ===== */
+.list-title {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+.expense-item {
+  cursor: pointer;
 }
