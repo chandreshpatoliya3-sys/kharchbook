@@ -144,7 +144,7 @@ deleteBtn.addEventListener('click', function () {
 
 // ===== RENDER: DASHBOARD RECENT EXPENSES =====
 //function renderFullList() {
-  let expenses = loadExpenses();//
+  //let expenses = loadExpenses();
 
   // Apply search (checks the note text, case-insensitive)
   const searchTerm = searchInput.value.trim().toLowerCase();
