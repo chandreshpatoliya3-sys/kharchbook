@@ -43,7 +43,7 @@
 
     <div class="screen-header">
       <button id="back-btn" class="text-btn">&larr; Back</button>
-      <h2>Add Expense</h2>
+      <h2 id="form-title">Add Expense</h2>
     </div>
 
     <form id="expense-form">
@@ -76,12 +76,26 @@
       </select>
 
       <button type="submit" class="primary-btn">Save Expense</button>
+      <button type="button" id="delete-btn" class="delete-btn hidden">Delete Expense</button>
     </form>
 
   </main>
 
   <!-- Floating + button to open Add Expense screen -->
   <button id="add-btn" class="fab">+</button>
+
+<!-- ===== SCREEN 3: EXPENSE LIST ===== -->
+  <main id="list-screen" class="screen hidden">
+    <h2 class="list-title">All Expenses</h2>
+    <div id="expense-list-container"></div>
+  </main>
+
+  <button id="add-btn" class="fab">+</button>
+
+  <nav class="bottom-nav">
+    <button id="nav-dashboard" class="nav-btn active">Dashboard</button>
+    <button id="nav-list" class="nav-btn">Expenses</button>
+  </nav>
 
   <script src="app.js"></script>
 </body>
