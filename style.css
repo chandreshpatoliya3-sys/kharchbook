@@ -208,3 +208,35 @@ body {
 .expense-item {
   cursor: pointer;
 }
+
+/* ===== SEARCH & FILTERS ===== */
+#search-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-bottom: 10px;
+  background: white;
+}
+
+.filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.filter-row select,
+.filter-row input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+#clear-filters-btn {
+  margin-bottom: 14px;
+  font-size: 13px;
+}
