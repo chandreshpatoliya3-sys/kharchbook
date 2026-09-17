@@ -220,4 +220,17 @@ function attachExpenseClickHandlers(container, expenses) {
 }
 
 // ===== INITIAL LOAD =====
+// ===== FILTER EVENT LISTENERS =====
+searchInput.addEventListener('input', renderFullList);
+filterCategory.addEventListener('change', renderFullList);
+filterDate.addEventListener('change', renderFullList);
+
+clearFiltersBtn.addEventListener('click', function () {
+  searchInput.value = '';
+  filterCategory.value = '';
+  filterDate.value = '';
+  renderFullList();
+});
+
+// ===== INITIAL LOAD =====
 renderRecentExpenses();
