@@ -1,3 +1,4 @@
+
 // ===== ELEMENT REFERENCES =====
 const dashboardScreen = document.getElementById('dashboard-screen');
 const addExpenseScreen = document.getElementById('add-expense-screen');
@@ -16,8 +17,6 @@ const deleteBtn = document.getElementById('delete-btn');
 
 const navDashboard = document.getElementById('nav-dashboard');
 const navList = document.getElementById('nav-list');
-
-
 
 // Track which expense we're editing (null = adding a new one)
 let editingId = null;
@@ -143,10 +142,27 @@ deleteBtn.addEventListener('click', function () {
 });
 
 // ===== RENDER: DASHBOARD RECENT EXPENSES =====
-//function renderFullList() {
-  //let expenses = loadExpenses();
+function renderRecentExpenses() {
+  const expenses = loadExpenses();
+  const container = document.querySelector('.recent-expenses');
 
-  // Apply search (checks the note text, case-insensitive)
+  if (expenses.length === 0) {
+    container.innerHTML = '<h2>Recent Expenses</h2><p class="empty-text">No expenses yet. Tap + to add one.</p>';
+    return;
+  }
+
+  const recent = expenses.slice().reverse().slice(0, 5);
+  let html = '<h2>Recent Expenses</h2>';
+  recent.forEach(function (exp) { html += buildExpenseItemHTML(exp); });
+
+  container.innerHTML = html;
+  attachExpenseClickHandlers(container, expenses);
+}
+
+// ===== RENDER: FULL LIST SCREEN (with search + filters) =====
+function renderFullList() {
+  let expenses = loadExpenses();
+
   const searchTerm = searchInput.value.trim().toLowerCase();
   if (searchTerm !== '') {
     expenses = expenses.filter(function (exp) {
@@ -154,13 +170,11 @@ deleteBtn.addEventListener('click', function () {
     });
   }
 
-  // Apply category filter
   const categoryValue = filterCategory.value;
   if (categoryValue !== '') {
     expenses = expenses.filter(function (exp) { return exp.category === categoryValue; });
   }
 
-  // Apply date filter
   const dateValue = filterDate.value;
   if (dateValue !== '') {
     expenses = expenses.filter(function (exp) { return exp.date === dateValue; });
@@ -168,23 +182,6 @@ deleteBtn.addEventListener('click', function () {
 
   if (expenses.length === 0) {
     listContainer.innerHTML = '<p class="empty-text">No matching expenses found.</p>';
-    return;
-  }
-
-  const sorted = expenses.slice().reverse();
-  let html = '';
-  sorted.forEach(function (exp) { html += buildExpenseItemHTML(exp); });
-
-  listContainer.innerHTML = html;
-  attachExpenseClickHandlers(listContainer, expenses);
-}
-
-// ===== RENDER: FULL LIST SCREEN =====
-function renderFullList() {
-  const expenses = loadExpenses();
-
-  if (expenses.length === 0) {
-    listContainer.innerHTML = '<p class="empty-text">No expenses yet. Tap + to add one.</p>';
     return;
   }
 
@@ -220,7 +217,6 @@ function attachExpenseClickHandlers(container, expenses) {
   });
 }
 
-// ===== INITIAL LOAD =====
 // ===== FILTER EVENT LISTENERS =====
 searchInput.addEventListener('input', renderFullList);
 filterCategory.addEventListener('change', renderFullList);
