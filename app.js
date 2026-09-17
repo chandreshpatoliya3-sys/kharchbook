@@ -1,7 +1,11 @@
 // ===== ELEMENT REFERENCES =====
 const dashboardScreen = document.getElementById('dashboard-screen');
 const addExpenseScreen = document.getElementById('add-expense-screen');
-const listScreen = document.getElementById('list-screen');
+const listContainer = document.getElementById('expense-list-container');
+const searchInput = document.getElementById('search-input');
+const filterCategory = document.getElementById('filter-category');
+const filterDate = document.getElementById('filter-date');
+const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
 const addBtn = document.getElementById('add-btn');
 const backBtn = document.getElementById('back-btn');
