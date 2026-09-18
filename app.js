@@ -44,6 +44,7 @@ function showScreen(screen) {
 function setActiveNav(activeBtn) {
   navDashboard.classList.remove('active');
   navList.classList.remove('active');
+  navStats.classList.remove('active');
   if (activeBtn) activeBtn.classList.add('active');
 }
 
