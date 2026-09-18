@@ -240,3 +240,32 @@ body {
   margin-bottom: 14px;
   font-size: 13px;
 }
+
+/* ===== CATEGORY BREAKDOWN ===== */
+.category-breakdown {
+  margin-bottom: 20px;
+}
+
+.category-breakdown h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.category-row {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.category-row-name {
+  color: #444;
+}
+
+.category-row-amount {
+  font-weight: bold;
+  color: #2e7d32;
+}
