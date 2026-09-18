@@ -185,8 +185,45 @@ function updateDashboardSummary() {
   cardAmounts[0].textContent = '₹' + todayTotal;
   cardAmounts[1].textContent = '₹' + weekTotal;
   cardAmounts[2].textContent = '₹' + monthTotal;
+
+  renderCategoryBreakdown(expenses);
 }
 
+// ===== CATEGORY-WISE BREAKDOWN =====
+function renderCategoryBreakdown(expenses) {
+  const container = document.getElementById('category-breakdown-container');
+
+  if (expenses.length === 0) {
+    container.innerHTML = '<p class="empty-text">No data yet.</p>';
+    return;
+  }
+
+  // Build a totals object like { Food: 500, Travel: 200 }
+  const totals = {};
+  expenses.forEach(function (exp) {
+    if (!totals[exp.category]) {
+      totals[exp.category] = 0;
+    }
+    totals[exp.category] += exp.amount;
+  });
+
+  // Sort categories from highest spending to lowest
+  const sortedCategories = Object.keys(totals).sort(function (a, b) {
+    return totals[b] - totals[a];
+  });
+
+  let html = '';
+  sortedCategories.forEach(function (cat) {
+    html += `
+      <div class="category-row">
+        <span class="category-row-name">${cat}</span>
+        <span class="category-row-amount">₹${totals[cat]}</span>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
 
 // ===== RENDER: DASHBOARD RECENT EXPENSES =====
 function renderRecentExpenses() {
