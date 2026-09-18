@@ -269,3 +269,38 @@ body {
   font-weight: bold;
   color: #2e7d32;
 }
+
+/* ===== STATISTICS BAR CHART ===== */
+.stat-bar-row {
+  margin-bottom: 16px;
+}
+
+.stat-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.stat-bar-category {
+  color: #444;
+  font-weight: 600;
+}
+
+.stat-bar-amount {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.stat-bar-track {
+  background: #e8e8e8;
+  border-radius: 6px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  background-color: #2e7d32;
+  height: 100%;
+  border-radius: 6px;
+}
