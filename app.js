@@ -57,6 +57,12 @@ navList.addEventListener('click', function () {
   renderFullList();
 });
 
+navStats.addEventListener('click', function () {
+  showScreen(statsScreen);
+  setActiveNav(navStats);
+  renderStatsChart();
+});
+
 addBtn.addEventListener('click', function () {
   openAddForm();
 });
@@ -300,6 +306,52 @@ function attachExpenseClickHandlers(container, expenses) {
       if (expense) openEditForm(expense);
     });
   });
+}
+// ===== STATISTICS BAR CHART =====
+function renderStatsChart() {
+  const expenses = loadExpenses();
+  const container = document.getElementById('stats-chart-container');
+
+  if (expenses.length === 0) {
+    container.innerHTML = '<p class="empty-text">No data yet. Add some expenses first.</p>';
+    return;
+  }
+
+  // Build totals per category, same idea as the dashboard breakdown
+  const totals = {};
+  expenses.forEach(function (exp) {
+    if (!totals[exp.category]) {
+      totals[exp.category] = 0;
+    }
+    totals[exp.category] += exp.amount;
+  });
+
+  const sortedCategories = Object.keys(totals).sort(function (a, b) {
+    return totals[b] - totals[a];
+  });
+
+  // The highest amount becomes our "100% width" reference point
+  const maxAmount = totals[sortedCategories[0]];
+
+  let html = '';
+  sortedCategories.forEach(function (cat) {
+    const amount = totals[cat];
+    const widthPercent = (amount / maxAmount) * 100;
+
+    html += `
+      <div class="stat-bar-row">
+        <div class="stat-bar-label">
+          <span class="stat-bar-category">${cat}</span>
+          <span class="stat-bar-amount">₹${amount}</span>
+        </div>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill" style="width: ${widthPercent}%"></div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
 }
 
 // ===== FILTER EVENT LISTENERS =====
