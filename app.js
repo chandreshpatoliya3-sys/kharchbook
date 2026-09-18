@@ -17,7 +17,8 @@ const deleteBtn = document.getElementById('delete-btn');
 
 const navDashboard = document.getElementById('nav-dashboard');
 const navList = document.getElementById('nav-list');
-
+const navStats = document.getElementById('nav-stats');
+const statsScreen = document.getElementById('stats-screen');
 // Track which expense we're editing (null = adding a new one)
 let editingId = null;
 
@@ -36,6 +37,7 @@ function showScreen(screen) {
   dashboardScreen.classList.add('hidden');
   addExpenseScreen.classList.add('hidden');
   listScreen.classList.add('hidden');
+  statsScreen.classList.add('hidden');
   screen.classList.remove('hidden');
 }
 
