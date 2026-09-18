@@ -141,8 +141,56 @@ deleteBtn.addEventListener('click', function () {
   renderRecentExpenses();
 });
 
+// ===== DASHBOARD CALCULATIONS =====
+function updateDashboardSummary() {
+  const expenses = loadExpenses();
+  const today = new Date();
+
+  // Helper: convert a date string like "2026-09-16" into a real Date object
+  function toDate(dateStr) {
+    return new Date(dateStr + 'T00:00:00');
+  }
+
+  // ----- TODAY -----
+  const todayStr = today.toISOString().split('T')[0]; // e.g. "2026-09-18"
+  const todayTotal = expenses
+    .filter(function (exp) { return exp.date === todayStr; })
+    .reduce(function (sum, exp) { return sum + exp.amount; }, 0);
+
+  // ----- THIS WEEK (last 7 days including today) -----
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const weekTotal = expenses
+    .filter(function (exp) {
+      const expDate = toDate(exp.date);
+      return expDate >= sevenDaysAgo && expDate <= today;
+    })
+    .reduce(function (sum, exp) { return sum + exp.amount; }, 0);
+
+  // ----- THIS MONTH -----
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  const monthTotal = expenses
+    .filter(function (exp) {
+      const expDate = toDate(exp.date);
+      return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
+    })
+    .reduce(function (sum, exp) { return sum + exp.amount; }, 0);
+
+  // ----- UPDATE THE CARDS ON SCREEN -----
+  const cardAmounts = document.querySelectorAll('.card-amount');
+  cardAmounts[0].textContent = '₹' + todayTotal;
+  cardAmounts[1].textContent = '₹' + weekTotal;
+  cardAmounts[2].textContent = '₹' + monthTotal;
+}
+
+
 // ===== RENDER: DASHBOARD RECENT EXPENSES =====
 function renderRecentExpenses() {
+  updateDashboardSummary();
   const expenses = loadExpenses();
   const container = document.querySelector('.recent-expenses');
 
