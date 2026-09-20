@@ -341,13 +341,18 @@ function renderFullList() {
 
 // ===== SHARED HELPERS =====
 function buildExpenseItemHTML(exp) {
+  const isIncome = getType(exp) === 'income';
+  const sign = isIncome ? '+' : '−';
+  const incomeClass = isIncome ? ' income' : '';
+  const label = isIncome ? '💰 Income' : getEmoji(exp.category) + ' ' + exp.category;
+
   return `
     <div class="expense-item" data-id="${exp.id}">
       <div>
-        <p class="expense-category">${getEmoji(exp.category)} ${exp.category}</p>
+        <p class="expense-category">${label}</p>
         <p class="expense-note">${exp.note || ''} • ${exp.date}</p>
       </div>
-      <p class="expense-amount">₹${exp.amount}</p>
+      <p class="expense-amount${incomeClass}">${sign}₹${exp.amount}</p>
     </div>
   `;
 }
@@ -364,7 +369,7 @@ function attachExpenseClickHandlers(container, expenses) {
 }
 // ===== STATISTICS BAR CHART =====
 function renderStatsChart() {
-  const expenses = loadExpenses();
+  const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
   const container = document.getElementById('stats-chart-container');
 
   if (expenses.length === 0) {
