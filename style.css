@@ -318,4 +318,34 @@ body {
   font-size: 14px;
   font-weight: 600;
 }
+/* ===== BALANCE CARD ===== */
+.balance-card {
+  background: #2e7d32;
+  color: white;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  margin-bottom: 16px;
+}
 
+.balance-label {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 4px;
+}
+
+.balance-amount {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.balance-sub {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Income entries shown in a different colour */
+.expense-amount.income {
+  color: #1565c0;
+}
