@@ -17,7 +17,7 @@ const deleteBtn = document.getElementById('delete-btn');
 
 const navDashboard = document.getElementById('nav-dashboard');
 const navList = document.getElementById('nav-list');
-const navStats = document.getElementById('nav-stats');
+const navStfats = document.getElementById('nav-stats');
 const statsScreen = document.getElementById('stats-screen');
 const exportBtn = document.getElementById('export-btn'); 
 const entryType = document.getElementById('entry-type');
@@ -121,6 +121,7 @@ function openEditForm(expense) {
   formTitle.textContent = 'Edit Expense';
   deleteBtn.classList.remove('hidden');
 
+    entryType.value = getType(expense);
   document.getElementById('amount').value = expense.amount;
   document.getElementById('category').value = expense.category;
   document.getElementById('date').value = expense.date;
