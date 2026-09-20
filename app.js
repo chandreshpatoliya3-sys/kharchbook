@@ -20,6 +20,23 @@ const navList = document.getElementById('nav-list');
 const navStats = document.getElementById('nav-stats');
 const statsScreen = document.getElementById('stats-screen');
 const exportBtn = document.getElementById('export-btn');
+
+// ===== CATEGORY EMOJIS =====
+const CATEGORY_EMOJIS = {
+  'Food': '🍕',
+  'Travel': '🚗',
+  'Shopping': '🛍️',
+  'Bills': '🧾',
+  'Medical': '💊',
+  'Entertainment': '🎬',
+  'Other': '📌'
+};
+
+// Helper: get the emoji for a category (falls back to a dot if unknown)
+function getEmoji(category) {
+  return CATEGORY_EMOJIS[category] || '•';
+}
+
 // Track which expense we're editing (null = adding a new one)
 let editingId = null;
 
@@ -240,7 +257,7 @@ function renderCategoryBreakdown(expenses) {
   sortedCategories.forEach(function (cat) {
     html += `
       <div class="category-row">
-        <span class="category-row-name">${cat}</span>
+        <span class="category-row-name">${getEmoji(cat)} ${cat}</span>
         <span class="category-row-amount">₹${totals[cat]}</span>
       </div>
     `;
@@ -307,7 +324,7 @@ function buildExpenseItemHTML(exp) {
   return `
     <div class="expense-item" data-id="${exp.id}">
       <div>
-        <p class="expense-category">${exp.category}</p>
+        <p class="expense-category">${getEmoji(exp.category)} ${exp.category}</p>
         <p class="expense-note">${exp.note || ''} • ${exp.date}</p>
       </div>
       <p class="expense-amount">₹${exp.amount}</p>
@@ -359,7 +376,7 @@ function renderStatsChart() {
     html += `
       <div class="stat-bar-row">
         <div class="stat-bar-label">
-          <span class="stat-bar-category">${cat}</span>
+          <span class="stat-bar-category">${getEmoji(cat)} ${cat}</span>
           <span class="stat-bar-amount">₹${amount}</span>
         </div>
         <div class="stat-bar-track">
