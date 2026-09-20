@@ -18,6 +18,11 @@
   <!-- ===== SCREEN 1: DASHBOARD ===== -->
   <main id="dashboard-screen" class="screen">
 
+    <section class="balance-card">      
+      <p class="balance-label">Balance</p>    
+      <p class="balance-amount" id="balance-amount">₹0</p>       
+      <p class="balance-sub" id="balance-sub">Income ₹0 − Spent ₹0</p>    
+    </section>   
     <section class="summary-cards">
       <div class="card">
         <p class="card-label">Today</p>
@@ -56,6 +61,12 @@
     </div>
 
     <form id="expense-form">
+      <label for="entry-type">Type</label>
+      <select id="entry-type">
+        <option value="expense">💸 Expense</option>
+        <option value="income">💰 Income</option>
+      </select>
+
       <label for="amount">Amount (₹)</label>
       <input type="number" id="amount" placeholder="0" min="0.01" step="0.01" required>
 
