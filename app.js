@@ -19,6 +19,7 @@ const navDashboard = document.getElementById('nav-dashboard');
 const navList = document.getElementById('nav-list');
 const navStats = document.getElementById('nav-stats');
 const statsScreen = document.getElementById('stats-screen');
+const exportBtn = document.getElementById('export-btn');
 // Track which expense we're editing (null = adding a new one)
 let editingId = null;
 
@@ -371,6 +372,41 @@ function renderStatsChart() {
   container.innerHTML = html;
 }
 
+// ===== EXPORT TO CSV =====
+function exportToCSV() {
+  const expenses = loadExpenses();
+
+  if (expenses.length === 0) {
+    alert('No expenses to export yet.');
+    return;
+  }
+
+  // First row = column headers
+  let csvContent = 'Date,Category,Amount,Payment Method,Note\n';
+
+  // One row per expense
+  expenses.forEach(function (exp) {
+    // Wrap the note in quotes in case it contains a comma
+    const safeNote = '"' + (exp.note || '').replace(/"/g, '""') + '"';
+    csvContent += `${exp.date},${exp.category},${exp.amount},${exp.paymentMethod},${safeNote}\n`;
+  });
+
+  // Turn the text into a downloadable file
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'kharchbook-export.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+exportBtn.addEventListener('click', exportToCSV);
+
+// ===== FILTER EVENT LISTENERS =====
 // ===== FILTER EVENT LISTENERS =====
 searchInput.addEventListener('input', renderFullList);
 filterCategory.addEventListener('change', renderFullList);
