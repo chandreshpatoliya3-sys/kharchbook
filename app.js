@@ -136,7 +136,8 @@ expenseForm.addEventListener('submit', function (event) {
 
   const expenses = loadExpenses();
 
-  const formData = {
+    const formData = {
+    type: entryType.value,
     amount: Number(document.getElementById('amount').value),
     category: document.getElementById('category').value,
     date: document.getElementById('date').value,
