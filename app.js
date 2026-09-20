@@ -29,14 +29,19 @@ function loadExpenses() {
 }
 
 function saveExpenses(expenses) {
-  localStorage.setItem('kharchbook-expenses', JSON.stringify(expenses));
+  try {
+    localStorage.setItem('kharchbook-expenses', JSON.stringify(expenses));
+  } catch (error) {
+    alert('Something went wrong saving your data. Your device storage might be full.');
+  }
 }
+
 
 // ===== SCREEN SWITCHING HELPERS =====
 function showScreen(screen) {
   dashboardScreen.classList.add('hidden');
   addExpenseScreen.classList.add('hidden');
-  listScreen.classList.add('hidden');
+  listScreen.classList.add('hidden'); 
   statsScreen.classList.add('hidden');
   screen.classList.remove('hidden');
 }
@@ -115,6 +120,16 @@ expenseForm.addEventListener('submit', function (event) {
     paymentMethod: document.getElementById('payment-method').value
   };
 
+  // ----- VALIDATION -----
+  if (!formData.amount || formData.amount <= 0) {
+    alert('Please enter a valid amount greater than ₹0.');
+    return;
+  }
+  if (!formData.date) {
+    alert('Please select a date.');
+    return;
+  }
+
   if (editingId === null) {
     formData.id = Date.now();
     expenses.push(formData);
@@ -127,7 +142,6 @@ expenseForm.addEventListener('submit', function (event) {
   }
 
   saveExpenses(expenses);
-  alert('Expense saved!');
   expenseForm.reset();
 
   showScreen(dashboardScreen);
