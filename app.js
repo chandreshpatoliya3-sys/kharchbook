@@ -193,8 +193,19 @@ deleteBtn.addEventListener('click', function () {
 
 // ===== DASHBOARD CALCULATIONS =====
 function updateDashboardSummary() {
-  const expenses = loadExpenses();
+  const allEntries = loadExpenses();
+  const expenses = allEntries.filter(function (e) { return getType(e) === 'expense'; });
+  const incomes = allEntries.filter(function (e) { return getType(e) === 'income'; });
   const today = new Date();
+
+  // ----- BALANCE -----
+  const totalIncome = incomes.reduce(function (sum, e) { return sum + e.amount; }, 0);
+  const totalSpent = expenses.reduce(function (sum, e) { return sum + e.amount; }, 0);
+  const balance = totalIncome - totalSpent;
+
+  document.getElementById('balance-amount').textContent = '₹' + balance;
+  document.getElementById('balance-sub').textContent =
+    'Income ₹' + totalIncome + ' − Spent ₹' + totalSpent;
 
   // Helper: convert a date string like "2026-09-16" into a real Date object
   function toDate(dateStr) {
