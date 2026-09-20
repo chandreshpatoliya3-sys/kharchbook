@@ -349,3 +349,105 @@ body {
 .expense-amount.income {
   color: #1565c0;
 }
+
+/* ===== HAMBURGER ICON ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.app-header h1 {
+  flex: 1;
+  text-align: center;
+  margin-right: 28px; /* balances the hamburger icon width so title stays centered */
+}
+
+.menu-icon-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  padding: 0;
+}
+
+/* ===== SIDE MENU OVERLAY (dark background behind menu) ===== */
+.side-menu-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+}
+
+.side-menu-overlay.hidden {
+  display: none;
+}
+
+/* ===== SIDE MENU PANEL ===== */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 78%;
+  max-width: 300px;
+  background: white;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+}
+
+.side-menu.hidden {
+  display: none;
+}
+
+.side-menu-profile {
+  background-color: #2e7d32;
+  color: white;
+  padding: 30px 20px 20px;
+}
+
+.profile-avatar {
+  width: 50px;
+  height: 50px;
+  background: white;
+  color: #2e7d32;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.side-menu-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.side-menu-email {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.side-menu-footer {
+  margin-top: auto;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+}
+
+.menu-item-btn {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 14px 20px;
+  font-size: 14px;
+  color: #333;
+}
+
