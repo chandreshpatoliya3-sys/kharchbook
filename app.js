@@ -457,6 +457,85 @@ function exportToCSV() {
 
 exportBtn.addEventListener('click', exportToCSV);
 
+// ===== SIDE MENU =====
+
+// Load/save a simple local profile (name + email only, no password)
+function loadProfile() {
+  const data = localStorage.getItem('kharchbook-profile');
+  return data ? JSON.parse(data) : { name: '', email: '' };
+}
+
+function saveProfile(profile) {
+  localStorage.setItem('kharchbook-profile', JSON.stringify(profile));
+}
+
+function renderProfile() {
+  const profile = loadProfile();
+  sideMenuName.textContent = profile.name ? profile.name : 'Tap to set your name';
+  sideMenuEmail.textContent = profile.email ? profile.email : 'Tap to add email';
+}
+
+function openSideMenu() {
+  renderProfile();
+  sideMenu.classList.remove('hidden');
+  sideMenuOverlay.classList.remove('hidden');
+}
+
+function closeSideMenu() {
+  sideMenu.classList.add('hidden');
+  sideMenuOverlay.classList.add('hidden');
+}
+
+menuBtn.addEventListener('click', openSideMenu);
+sideMenuOverlay.addEventListener('click', closeSideMenu);
+
+// Tap the profile area to edit name/email
+sideMenuProfile.addEventListener('click', function () {
+  const profile = loadProfile();
+  const newName = prompt('Your name:', profile.name);
+  if (newName === null) return; // user cancelled
+  const newEmail = prompt('Your email (optional):', profile.email);
+
+  saveProfile({ name: newName.trim(), email: (newEmail || '').trim() });
+  renderProfile();
+});
+
+// Share the app link
+menuShareBtn.addEventListener('click', function () {
+  const appUrl = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: 'KharchBook', text: 'Track your expenses with KharchBook!', url: appUrl });
+  } else {
+    navigator.clipboard.writeText(appUrl);
+    alert('App link copied! Share it with anyone.');
+  }
+});
+
+// Rate the app (placeholder until published on Play Store)
+menuRateBtn.addEventListener('click', function () {
+  alert('Thanks for wanting to rate KharchBook! Once it\'s on the Play Store, this button will take you there.');
+});
+
+// Reset local profile (our version of "logout" since there's no real account)
+menuLogoutBtn.addEventListener('click', function () {
+  const confirmed = confirm('Reset your profile name and email? (Your expenses will NOT be deleted.)');
+  if (!confirmed) return;
+  saveProfile({ name: '', email: '' });
+  renderProfile();
+  closeSideMenu();
+});
+
+// Exit the app
+menuExitBtn.addEventListener('click', function () {
+  window.close();
+  // If the browser blocks window.close() (common in a normal tab), tell the user why
+  setTimeout(function () {
+    alert('Your browser doesn\'t allow apps to close themselves. You can close this tab manually.');
+  }, 300);
+});
+
+// ===== FILTER EVENT LISTENERS =====
+
 // ===== FILTER EVENT LISTENERS =====
 // ===== FILTER EVENT LISTENERS =====
 searchInput.addEventListener('input', renderFullList);
