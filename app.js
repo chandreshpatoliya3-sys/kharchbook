@@ -107,9 +107,10 @@ backBtn.addEventListener('click', function () {
 // ===== OPEN FORM FOR ADDING =====
 function openAddForm() {
   editingId = null;
-  formTitle.textContent = 'Add Expense';
+  formTitle.textContent = 'Add Entry';
   deleteBtn.classList.add('hidden');
   expenseForm.reset();
+  entryType.value = 'expense';
   showScreen(addExpenseScreen);
   setActiveNav(null);
 }
