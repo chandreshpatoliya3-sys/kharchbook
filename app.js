@@ -17,7 +17,7 @@ const deleteBtn = document.getElementById('delete-btn');
 
 const navDashboard = document.getElementById('nav-dashboard');
 const navList = document.getElementById('nav-list');
-const navStfats = document.getElementById('nav-stats');
+const navStats = document.getElementById('nav-stats');
 const statsScreen = document.getElementById('stats-screen');
 const exportBtn = document.getElementById('export-btn'); 
 const entryType = document.getElementById('entry-type');
