@@ -144,6 +144,23 @@
     <button id="nav-stats" class="nav-btn">Stats</button>
   </nav>
 
+  <!-- ===== SIDE MENU ===== -->
+  <div id="side-menu-overlay" class="side-menu-overlay hidden"></div>
+  <nav id="side-menu" class="side-menu hidden">
+    <div class="side-menu-profile" id="side-menu-profile">
+      <div class="profile-avatar">👤</div>
+      <p class="side-menu-name" id="side-menu-name">Tap to set your name</p>
+      <p class="side-menu-email" id="side-menu-email">Tap to add email</p>
+    </div>
+
+    <div class="side-menu-footer">
+      <button id="menu-share-btn" class="menu-item-btn">📤 Share App</button>
+      <button id="menu-rate-btn" class="menu-item-btn">⭐ Rate App</button>
+      <button id="menu-logout-btn" class="menu-item-btn">🔄 Reset Profile</button>
+      <button id="menu-exit-btn" class="menu-item-btn">🚪 Exit</button>
+    </div>
+  </nav>
+
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
