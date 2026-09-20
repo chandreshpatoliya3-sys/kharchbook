@@ -19,7 +19,8 @@ const navDashboard = document.getElementById('nav-dashboard');
 const navList = document.getElementById('nav-list');
 const navStats = document.getElementById('nav-stats');
 const statsScreen = document.getElementById('stats-screen');
-const exportBtn = document.getElementById('export-btn');
+const exportBtn = document.getElementById('export-btn'); 
+const entryType = document.getElementById('entry-type');
 
 // ===== CATEGORY EMOJIS =====
 const CATEGORY_EMOJIS = {
@@ -35,6 +36,11 @@ const CATEGORY_EMOJIS = {
 // Helper: get the emoji for a category (falls back to a dot if unknown)
 function getEmoji(category) {
   return CATEGORY_EMOJIS[category] || '•';
+}
+
+// Helper: older saved entries have no "type" — treat them as expenses
+function getType(entry) {
+  return entry.type || 'expense';
 }
 
 // Track which expense we're editing (null = adding a new one)
