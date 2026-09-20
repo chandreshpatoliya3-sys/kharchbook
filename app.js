@@ -424,13 +424,11 @@ function exportToCSV() {
   }
 
   // First row = column headers
-  let csvContent = 'Date,Category,Amount,Payment Method,Note\n';
+    let csvContent = 'Date,Type,Category,Amount,Payment Method,Note\n';
 
-  // One row per expense
   expenses.forEach(function (exp) {
-    // Wrap the note in quotes in case it contains a comma
     const safeNote = '"' + (exp.note || '').replace(/"/g, '""') + '"';
-    csvContent += `${exp.date},${exp.category},${exp.amount},${exp.paymentMethod},${safeNote}\n`;
+    csvContent += `${exp.date},${getType(exp)},${exp.category},${exp.amount},${exp.paymentMethod},${safeNote}\n`;
   });
 
   // Turn the text into a downloadable file
