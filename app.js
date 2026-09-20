@@ -22,6 +22,17 @@ const statsScreen = document.getElementById('stats-screen');
 const exportBtn = document.getElementById('export-btn'); 
 const entryType = document.getElementById('entry-type');
 
+const menuBtn = document.getElementById('menu-btn');
+const sideMenu = document.getElementById('side-menu');
+const sideMenuOverlay = document.getElementById('side-menu-overlay');
+const sideMenuProfile = document.getElementById('side-menu-profile');
+const sideMenuName = document.getElementById('side-menu-name');
+const sideMenuEmail = document.getElementById('side-menu-email');
+const menuShareBtn = document.getElementById('menu-share-btn');
+const menuRateBtn = document.getElementById('menu-rate-btn');
+const menuLogoutBtn = document.getElementById('menu-logout-btn');
+const menuExitBtn = document.getElementById('menu-exit-btn');
+
 // ===== CATEGORY EMOJIS =====
 const CATEGORY_EMOJIS = {
   'Food': '🍕',
