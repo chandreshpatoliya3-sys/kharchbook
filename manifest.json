@@ -1,20 +1,51 @@
 {
-  "name": "KharchBook",
+  "id": "/kharchbook/",
+  "name": "KharchBook — Expense Tracker",
   "short_name": "KharchBook",
+  "description": "Track your daily expenses and income offline. See spending by category, set monthly budgets, view charts, and export reports. Works fully on your device with no login and no data collection.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f5f7",
-  "theme_color": "#2e7d32",
+  "orientation": "portrait",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1e7d3a",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-1.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard with balance and spending summary"
+    },
+    {
+      "src": "screenshot-2.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Statistics with charts"
     }
   ]
 }
