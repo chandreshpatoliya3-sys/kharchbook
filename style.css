@@ -609,3 +609,50 @@ body.dark-mode .budget-bar-track, body.dark-mode .trend-bar-track { background: 
 body.dark-mode .budget-row-label, body.dark-mode .trend-label { color: #aaa; }
 
 .pin-forgot-btn { margin-top: 14px; font-size: 12px; color: #888; }
+
+.card { cursor: pointer; }
+
+/* Side menu middle decorative space */
+.side-menu-middle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+.side-menu-icon { font-size: 48px; margin-bottom: 14px; opacity: 0.85; }
+.side-menu-tagline { font-size: 14px; color: #666; font-style: italic; margin-bottom: 20px; }
+.side-menu-stat {
+  font-size: 13px; color: #2e7d32; font-weight: 600;
+  background: #f0f7f0; padding: 8px 16px; border-radius: 20px;
+}
+.side-menu-version { font-size: 11px; color: #bbb; margin-top: 30px; }
+
+body.dark-mode .side-menu-tagline { color: #aaa; }
+body.dark-mode .side-menu-stat { background: #1e1e1e; color: #66bb6a; }
+body.dark-mode .side-menu-version { color: #555; }
+
+/* Period summary popup */
+.period-summary-modal {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  z-index: 205;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+}
+.period-summary-modal.hidden { display: none; }
+.period-summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.period-summary-header h2 { font-size: 18px; }
+.period-summary-total { font-size: 26px; font-weight: bold; color: #2e7d32; margin-bottom: 16px; }
+.period-summary-row {
+  display: flex; justify-content: space-between; padding: 10px 0;
+  border-bottom: 1px solid #eee; font-size: 14px;
+}
+body.dark-mode .period-summary-modal { background: #1e1e1e; color: #eee; }
+body.dark-mode .period-summary-row { border-color: #333; }
