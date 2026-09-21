@@ -782,7 +782,7 @@ menuPinBtn.addEventListener('click', function () {
   }
 });
 
-// ===== EXPORT STATS AS PDF =====
+// ===== EXPORT STATS AS PDF (SVG-based so it prints reliably) =====
 function exportStatsPDF() {
   const all = loadExpenses();
   const expenses = all.filter(function (e) { return getType(e) === 'expense'; });
@@ -795,24 +795,29 @@ function exportStatsPDF() {
 
   const today = new Date();
   function toDate(d) { return new Date(d + 'T00:00:00'); }
+  function money(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
 
   const totalIncome = incomes.reduce(function (s, e) { return s + e.amount; }, 0);
   const totalSpent = expenses.reduce(function (s, e) { return s + e.amount; }, 0);
+  const balance = totalIncome - totalSpent;
 
-  const thisMonth = today.getMonth(), thisYear = today.getFullYear();
-  let lastMonth = thisMonth - 1, lastYear = thisYear;
-  if (lastMonth < 0) { lastMonth = 11; lastYear = thisYear - 1; }
+  // ---- Monthly comparison ----
+  const thisM = today.getMonth(), thisY = today.getFullYear();
+  let lastM = thisM - 1, lastY = thisY;
+  if (lastM < 0) { lastM = 11; lastY = thisY - 1; }
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-  const thisMonthTotal = expenses.filter(function (e) {
-    const d = toDate(e.date);
-    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-  }).reduce(function (s, e) { return s + e.amount; }, 0);
+  function monthTotal(m, y) {
+    return expenses.filter(function (e) {
+      const d = toDate(e.date);
+      return d.getMonth() === m && d.getFullYear() === y;
+    }).reduce(function (s, e) { return s + e.amount; }, 0);
+  }
+  const thisMonthTotal = monthTotal(thisM, thisY);
+  const lastMonthTotal = monthTotal(lastM, lastY);
+  const monthDiff = thisMonthTotal - lastMonthTotal;
 
-  const lastMonthTotal = expenses.filter(function (e) {
-    const d = toDate(e.date);
-    return d.getMonth() === lastMonth && d.getFullYear() === lastYear;
-  }).reduce(function (s, e) { return s + e.amount; }, 0);
-
+  // ---- Category totals ----
   const totals = {};
   expenses.forEach(function (e) {
     if (!totals[e.category]) totals[e.category] = 0;
@@ -820,30 +825,101 @@ function exportStatsPDF() {
   });
   const sortedCats = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
 
-  // Pie chart gradient
-  let cum = 0;
-  const parts = [];
-  sortedCats.forEach(function (cat) {
-    const pct = (totals[cat] / totalSpent) * 100;
-    const color = CATEGORY_COLORS[cat] || '#999';
-    parts.push(color + ' ' + cum + '% ' + (cum + pct) + '%');
-    cum += pct;
+  // ---- Payment methods ----
+  const payTotals = {};
+  expenses.forEach(function (e) {
+    const p = e.paymentMethod || 'Other';
+    if (!payTotals[p]) payTotals[p] = 0;
+    payTotals[p] += e.amount;
   });
-  const pieCSS = 'conic-gradient(' + parts.join(', ') + ')';
+  const sortedPays = Object.keys(payTotals).sort(function (a, b) { return payTotals[b] - payTotals[a]; });
 
-  let legendRows = '';
+  // ---- DONUT CHART as SVG (prints correctly, unlike conic-gradient) ----
+  const R = 70, CX = 100, CY = 100, SW = 36;
+  const CIRC = 2 * Math.PI * R;
+  let offset = 0;
+  let donutSegments = '';
   sortedCats.forEach(function (cat) {
+    const frac = totals[cat] / totalSpent;
+    const len = frac * CIRC;
+    const color = CATEGORY_COLORS[cat] || '#9e9e9e';
+    donutSegments += `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}"
+      stroke-width="${SW}" stroke-dasharray="${len} ${CIRC - len}"
+      stroke-dashoffset="${-offset}" transform="rotate(-90 ${CX} ${CY})"></circle>`;
+    offset += len;
+  });
+
+  const donutSVG = `
+    <svg viewBox="0 0 200 200" width="190" height="190" xmlns="http://www.w3.org/2000/svg">
+      ${donutSegments}
+      <circle cx="${CX}" cy="${CY}" r="${R - SW / 2}" fill="#ffffff"></circle>
+      <text x="${CX}" y="${CY - 4}" text-anchor="middle" font-size="11" fill="#8a8f98" font-family="Arial">TOTAL SPENT</text>
+      <text x="${CX}" y="${CY + 16}" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b5e20" font-family="Arial">${money(totalSpent)}</text>
+    </svg>`;
+
+  // ---- Category bars as SVG ----
+  const maxCat = totals[sortedCats[0]] || 1;
+  const ROW_H = 30;
+  let catBars = '';
+  sortedCats.forEach(function (cat, i) {
+    const y = i * ROW_H;
+    const w = (totals[cat] / maxCat) * 300;
+    const color = CATEGORY_COLORS[cat] || '#9e9e9e';
     const pct = ((totals[cat] / totalSpent) * 100).toFixed(1);
-    const color = CATEGORY_COLORS[cat] || '#999';
-    legendRows += `
-      <tr>
-        <td><span class="pdf-dot" style="background:${color}"></span> ${cat}</td>
-        <td style="text-align:right">₹${totals[cat]}</td>
-        <td style="text-align:right">${pct}%</td>
-      </tr>`;
+    catBars += `
+      <text x="0" y="${y + 13}" font-size="11" fill="#3c4149" font-family="Arial">${cat}</text>
+      <rect x="0" y="${y + 18}" width="300" height="7" rx="3.5" fill="#eef0f3"></rect>
+      <rect x="0" y="${y + 18}" width="${w}" height="7" rx="3.5" fill="${color}"></rect>
+      <text x="420" y="${y + 13}" font-size="11" font-weight="bold" fill="#1b5e20" text-anchor="end" font-family="Arial">${money(totals[cat])}</text>
+      <text x="420" y="${y + 26}" font-size="9" fill="#9aa0a8" text-anchor="end" font-family="Arial">${pct}%</text>`;
+  });
+  const catBarsSVG = `<svg viewBox="0 0 430 ${sortedCats.length * ROW_H}" width="100%" xmlns="http://www.w3.org/2000/svg">${catBars}</svg>`;
+
+  // ---- Monthly comparison bars as SVG ----
+  const maxM = Math.max(thisMonthTotal, lastMonthTotal, 1);
+  const monthSVG = `
+    <svg viewBox="0 0 430 78" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="13" font-size="11" fill="#3c4149" font-family="Arial">${MONTH_NAMES[lastM]} ${lastY}</text>
+      <rect x="0" y="19" width="300" height="12" rx="6" fill="#eef0f3"></rect>
+      <rect x="0" y="19" width="${(lastMonthTotal / maxM) * 300}" height="12" rx="6" fill="#b0bec5"></rect>
+      <text x="420" y="30" font-size="12" font-weight="bold" fill="#607d8b" text-anchor="end" font-family="Arial">${money(lastMonthTotal)}</text>
+
+      <text x="0" y="57" font-size="11" fill="#3c4149" font-family="Arial">${MONTH_NAMES[thisM]} ${thisY}</text>
+      <rect x="0" y="63" width="300" height="12" rx="6" fill="#eef0f3"></rect>
+      <rect x="0" y="63" width="${(thisMonthTotal / maxM) * 300}" height="12" rx="6" fill="#2e7d32"></rect>
+      <text x="420" y="74" font-size="12" font-weight="bold" fill="#1b5e20" text-anchor="end" font-family="Arial">${money(thisMonthTotal)}</text>
+    </svg>`;
+
+  // ---- Payment method bars ----
+  const maxPay = payTotals[sortedPays[0]] || 1;
+  const PAY_COLORS = { 'Cash': '#43a047', 'UPI': '#1e88e5', 'Card': '#8e24aa', 'Bank': '#fb8c00', 'Other': '#78909c' };
+  let payBars = '';
+  sortedPays.forEach(function (p, i) {
+    const y = i * ROW_H;
+    payBars += `
+      <text x="0" y="${y + 13}" font-size="11" fill="#3c4149" font-family="Arial">${p}</text>
+      <rect x="0" y="${y + 18}" width="300" height="7" rx="3.5" fill="#eef0f3"></rect>
+      <rect x="0" y="${y + 18}" width="${(payTotals[p] / maxPay) * 300}" height="7" rx="3.5" fill="${PAY_COLORS[p] || '#78909c'}"></rect>
+      <text x="420" y="${y + 16}" font-size="11" font-weight="bold" fill="#1b5e20" text-anchor="end" font-family="Arial">${money(payTotals[p])}</text>`;
+  });
+  const paySVG = `<svg viewBox="0 0 430 ${sortedPays.length * ROW_H}" width="100%" xmlns="http://www.w3.org/2000/svg">${payBars}</svg>`;
+
+  // ---- Legend ----
+  let legend = '';
+  sortedCats.forEach(function (cat) {
+    const color = CATEGORY_COLORS[cat] || '#9e9e9e';
+    const pct = ((totals[cat] / totalSpent) * 100).toFixed(1);
+    legend += `
+      <div class="pdf-legend-item">
+        <svg width="10" height="10"><circle cx="5" cy="5" r="5" fill="${color}"></circle></svg>
+        <span>${cat}</span><b>${pct}%</b>
+      </div>`;
   });
 
-  const maxM = Math.max(thisMonthTotal, lastMonthTotal, 1);
+  const trendText = monthDiff === 0 ? 'Same as last month'
+    : (monthDiff > 0 ? '▲ ' + money(Math.abs(monthDiff)) + ' more than last month'
+                     : '▼ ' + money(Math.abs(monthDiff)) + ' less than last month');
+  const trendClass = monthDiff > 0 ? 'pdf-trend-up' : 'pdf-trend-down';
 
   let area = document.getElementById('print-area');
   if (!area) {
@@ -854,46 +930,71 @@ function exportStatsPDF() {
 
   area.innerHTML = `
     <div class="pdf-report">
-      <h1 class="pdf-title">KharchBook — Spending Report</h1>
-      <p class="pdf-sub">Generated on ${formatDate(today.toISOString().split('T')[0])}</p>
-
-      <div class="pdf-cards">
-        <div class="pdf-card"><span>Total Income</span><strong>₹${totalIncome}</strong></div>
-        <div class="pdf-card"><span>Total Spent</span><strong>₹${totalSpent}</strong></div>
-        <div class="pdf-card"><span>Balance</span><strong>₹${totalIncome - totalSpent}</strong></div>
+      <div class="pdf-hero">
+        <svg class="pdf-hero-bg" viewBox="0 0 600 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="600" height="120" fill="#1b5e20"></rect>
+          <circle cx="530" cy="20" r="80" fill="#2e7d32" opacity="0.55"></circle>
+          <circle cx="590" cy="105" r="55" fill="#43a047" opacity="0.4"></circle>
+        </svg>
+        <div class="pdf-hero-text">
+          <p class="pdf-hero-eyebrow">KHARCHBOOK</p>
+          <h1 class="pdf-hero-title">Spending Report</h1>
+          <p class="pdf-hero-date">Generated ${formatDate(today.toISOString().split('T')[0])}</p>
+        </div>
       </div>
 
-      <h2 class="pdf-h2">Monthly Comparison</h2>
-      <div class="pdf-bar-row">
-        <span class="pdf-bar-label">Last Month</span>
-        <span class="pdf-bar-track"><span class="pdf-bar-fill" style="width:${(lastMonthTotal / maxM) * 100}%;background:#90a4ae"></span></span>
-        <span class="pdf-bar-amt">₹${lastMonthTotal}</span>
-      </div>
-      <div class="pdf-bar-row">
-        <span class="pdf-bar-label">This Month</span>
-        <span class="pdf-bar-track"><span class="pdf-bar-fill" style="width:${(thisMonthTotal / maxM) * 100}%;background:#2e7d32"></span></span>
-        <span class="pdf-bar-amt">₹${thisMonthTotal}</span>
+      <div class="pdf-kpis">
+        <div class="pdf-kpi pdf-kpi-in">
+          <span>Total Income</span><strong>${money(totalIncome)}</strong>
+        </div>
+        <div class="pdf-kpi pdf-kpi-out">
+          <span>Total Spent</span><strong>${money(totalSpent)}</strong>
+        </div>
+        <div class="pdf-kpi ${balance >= 0 ? 'pdf-kpi-bal' : 'pdf-kpi-neg'}">
+          <span>Balance</span><strong>${money(balance)}</strong>
+        </div>
       </div>
 
-      <h2 class="pdf-h2">Spending by Category</h2>
-      <div class="pdf-pie-wrap">
-        <div class="pdf-pie" style="background:${pieCSS}"></div>
+      <div class="pdf-section">
+        <h2 class="pdf-h2">Where Your Money Went</h2>
+        <div class="pdf-donut-row">
+          <div class="pdf-donut">${donutSVG}</div>
+          <div class="pdf-legend">${legend}</div>
+        </div>
       </div>
-      <table class="pdf-table">
-        <thead><tr><th>Category</th><th style="text-align:right">Amount</th><th style="text-align:right">Share</th></tr></thead>
-        <tbody>${legendRows}</tbody>
-        <tfoot><tr><th>Total</th><th style="text-align:right">₹${totalSpent}</th><th style="text-align:right">100%</th></tr></tfoot>
-      </table>
 
-      <p class="pdf-footer">KharchBook • ${expenses.length} expense entries</p>
+      <div class="pdf-section">
+        <h2 class="pdf-h2">Category Breakdown</h2>
+        ${catBarsSVG}
+      </div>
+
+      <div class="pdf-section pdf-avoid-break">
+        <h2 class="pdf-h2">Month Comparison</h2>
+        ${monthSVG}
+        <p class="pdf-trend ${trendClass}">${trendText}</p>
+      </div>
+
+      <div class="pdf-section pdf-avoid-break">
+        <h2 class="pdf-h2">Payment Methods</h2>
+        ${paySVG}
+      </div>
+
+      <div class="pdf-meta">
+        <div><span>Entries</span><b>${expenses.length}</b></div>
+        <div><span>Categories</span><b>${sortedCats.length}</b></div>
+        <div><span>Top Spend</span><b>${sortedCats[0]}</b></div>
+        <div><span>Avg / Entry</span><b>${money(Math.round(totalSpent / expenses.length))}</b></div>
+      </div>
+
+      <p class="pdf-footer">Generated by KharchBook • Personal Expense Tracker</p>
     </div>
   `;
 
   document.body.classList.add('printing');
   setTimeout(function () {
     window.print();
-    setTimeout(function () { document.body.classList.remove('printing'); }, 500);
-  }, 100);
+    setTimeout(function () { document.body.classList.remove('printing'); }, 600);
+  }, 150);
 }
 
 const exportPdfBtn = document.getElementById('export-pdf-btn');
