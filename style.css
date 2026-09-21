@@ -602,3 +602,5 @@ body.dark-mode #pin-input { background: #2a2a2a; color: #eee; border-color: #444
 body.dark-mode .quick-add-btn { background: #1e1e1e; color: #eee; border-color: #333; }
 body.dark-mode .budget-bar-track, body.dark-mode .trend-bar-track { background: #333; }
 body.dark-mode .budget-row-label, body.dark-mode .trend-label { color: #aaa; }
+
+.pin-forgot-btn { margin-top: 14px; font-size: 12px; color: #888; }
