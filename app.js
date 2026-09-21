@@ -39,6 +39,7 @@ const pinLockScreen = document.getElementById('pin-lock-screen');
 const pinInput = document.getElementById('pin-input');
 const pinUnlockBtn = document.getElementById('pin-unlock-btn');
 const pinError = document.getElementById('pin-error');
+const pinForgotBtn = document.getElementById('pin-forgot-btn');
 
 // ===== CATEGORIES =====
 const EXPENSE_CATEGORIES = ['Food', 'Travel', 'Shopping', 'Bills', 'Medical', 'Entertainment', 'Other'];
@@ -711,6 +712,18 @@ pinUnlockBtn.addEventListener('click', function () {
     pinError.classList.add('hidden');
   } else {
     pinError.classList.remove('hidden');
+  }
+});
+
+pinForgotBtn.addEventListener('click', function () {
+  const confirmed = confirm('This removes the PIN lock. Your expenses are safe. Continue?');
+  if (!confirmed) return;
+  removePin();
+  pinLockScreen.classList.add('hidden');
+  pinInput.value = '';
+  pinError.classList.add('hidden');
+  if (typeof menuPinBtn !== 'undefined' && menuPinBtn) {
+    menuPinBtn.textContent = '🔒 Set PIN Lock';
   }
 });
 
