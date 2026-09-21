@@ -133,6 +133,9 @@ function renderPieChart(expenses) {
 // Track which expense we're editing (null = adding a new one)
 let editingId = null;
 
+// Tracks whether we've told the browser "we left Dashboard"
+let hasPushedState = false;
+
 // ===== STORAGE FUNCTIONS =====
 function loadExpenses() {
   const data = localStorage.getItem('kharchbook-expenses');
@@ -152,10 +155,30 @@ function saveExpenses(expenses) {
 function showScreen(screen) {
   dashboardScreen.classList.add('hidden');
   addExpenseScreen.classList.add('hidden');
-  listScreen.classList.add('hidden'); 
+  listScreen.classList.add('hidden');
   statsScreen.classList.add('hidden');
   screen.classList.remove('hidden');
+
+  if (screen !== dashboardScreen) {
+    if (!hasPushedState) {
+      history.pushState({ kbScreen: true }, '');
+      hasPushedState = true;
+    }
+  } else {
+    hasPushedState = false;
+  }
 }
+
+// Catches the phone's back button / back-swipe and keeps it inside
+// the app (returns to Dashboard) instead of exiting.
+window.addEventListener('popstate', function () {
+  dashboardScreen.classList.remove('hidden');
+  addExpenseScreen.classList.add('hidden');
+  listScreen.classList.add('hidden');
+  statsScreen.classList.add('hidden');
+  setActiveNav(navDashboard);
+  hasPushedState = false;
+});
 
 function setActiveNav(activeBtn) {
   navDashboard.classList.remove('active');
