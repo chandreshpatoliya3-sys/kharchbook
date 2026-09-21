@@ -322,12 +322,11 @@ function updateDashboardSummary() {
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
 
-  const monthTotal = expenses
-    .filter(function (exp) {
-      const expDate = toDate(exp.date);
-      return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
-    })
-    .reduce(function (sum, exp) { return sum + exp.amount; }, 0);
+      const monthExpenses = expenses.filter(function (exp) {
+    const expDate = toDate(exp.date);
+    return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
+  });
+  const monthTotal = monthExpenses.reduce(function (sum, exp) { return sum + exp.amount; }, 0);
 
   // ----- UPDATE THE CARDS ON SCREEN -----
   const cardAmounts = document.querySelectorAll('.card-amount');
@@ -336,6 +335,7 @@ function updateDashboardSummary() {
   cardAmounts[2].textContent = '₹' + monthTotal;
 
   renderCategoryBreakdown(expenses);
+  renderBudgetTracker(monthExpenses);
 }
 
 // ===== CATEGORY-WISE BREAKDOWN =====
