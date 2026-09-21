@@ -778,6 +778,78 @@ menuPinBtn.addEventListener('click', function () {
     closeSideMenu();
   }
 });
+// ===== PERIOD SUMMARY (tap Today/Week/Month cards) =====
+function openPeriodSummary(period) {
+  const allEntries = loadExpenses();
+  const expenses = allEntries.filter(function (e) { return getType(e) === 'expense'; });
+  const today = new Date();
+  function toDate(dateStr) { return new Date(dateStr + 'T00:00:00'); }
+
+  let filtered = [];
+  let title = '';
+
+  if (period === 'today') {
+    const todayStr = today.toISOString().split('T')[0];
+    filtered = expenses.filter(function (exp) { return exp.date === todayStr; });
+    title = 'Today';
+  } else if (period === 'week') {
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    filtered = expenses.filter(function (exp) {
+      const d = toDate(exp.date);
+      return d >= sevenDaysAgo && d <= today;
+    });
+    title = 'This Week';
+  } else if (period === 'month') {
+    const m = today.getMonth();
+    const y = today.getFullYear();
+    filtered = expenses.filter(function (exp) {
+      const d = toDate(exp.date);
+      return d.getMonth() === m && d.getFullYear() === y;
+    });
+    title = 'This Month';
+  }
+
+  const total = filtered.reduce(function (s, e) { return s + e.amount; }, 0);
+  document.getElementById('period-summary-title').textContent = title;
+  document.getElementById('period-summary-total').textContent = '₹' + total;
+
+  const listEl = document.getElementById('period-summary-list');
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<p class="empty-text">No expenses in this period.</p>';
+  } else {
+    const sorted = filtered.slice().reverse();
+    let html = '';
+    sorted.forEach(function (exp) {
+      html += `
+        <div class="period-summary-row">
+          <span>${getEmoji(exp.category)} ${exp.category}</span>
+          <span>₹${exp.amount}</span>
+        </div>
+      `;
+    });
+    listEl.innerHTML = html;
+  }
+
+  document.getElementById('period-summary-overlay').classList.remove('hidden');
+  document.getElementById('period-summary-modal').classList.remove('hidden');
+}
+
+function closePeriodSummary() {
+  document.getElementById('period-summary-overlay').classList.add('hidden');
+  document.getElementById('period-summary-modal').classList.add('hidden');
+}
+
+document.querySelectorAll('.card').forEach(function (card) {
+  card.addEventListener('click', function () {
+    openPeriodSummary(card.getAttribute('data-period'));
+  });
+});
+
+document.getElementById('period-summary-close').addEventListener('click', closePeriodSummary);
+document.getElementById('period-summary-overlay').addEventListener('click', closePeriodSummary);
+
 // ===== BUDGET TRACKER =====
 function loadBudgets() {
   const data = localStorage.getItem('kharchbook-budgets');
