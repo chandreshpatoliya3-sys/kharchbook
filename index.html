@@ -24,16 +24,16 @@
       <p class="balance-amount" id="balance-amount">₹0</p>       
       <p class="balance-sub" id="balance-sub">Income ₹0 − Spent ₹0</p>    
     </section>   
-    <section class="summary-cards">
-      <div class="card">
+   <section class="summary-cards">
+      <div class="card" data-period="today">
         <p class="card-label">Today</p>
         <p class="card-amount">₹0</p>
       </div>
-      <div class="card">
+      <div class="card" data-period="week">
         <p class="card-label">This Week</p>
         <p class="card-amount">₹0</p>
       </div>
-      <div class="card">
+      <div class="card" data-period="month">
         <p class="card-label">This Month</p>
         <p class="card-amount">₹0</p>
       </div>
@@ -159,6 +159,17 @@
     <button id="nav-list" class="nav-btn">Expenses</button>
     <button id="nav-stats" class="nav-btn">Stats</button>
   </nav>
+
+  <!-- ===== PERIOD SUMMARY POPUP ===== -->
+  <div id="period-summary-overlay" class="side-menu-overlay hidden"></div>
+  <div id="period-summary-modal" class="period-summary-modal hidden">
+    <div class="period-summary-header">
+      <h2 id="period-summary-title">Today</h2>
+      <button id="period-summary-close" class="text-btn">✕ Close</button>
+    </div>
+    <p class="period-summary-total" id="period-summary-total">₹0</p>
+    <div id="period-summary-list"></div>
+  </div>
 
   <!-- ===== PIN LOCK SCREEN ===== -->
   <div id="pin-lock-screen" class="pin-lock-screen hidden">
