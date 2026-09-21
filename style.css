@@ -480,3 +480,42 @@ body {
 }
 .pie-legend-label { flex: 1; color: #444; }
 .pie-legend-percent { font-weight: bold; color: #2e7d32; }
+
+/* ===== DARK MODE ===== */
+body.dark-mode { background-color: #121212; color: #eee; }
+body.dark-mode .card,
+body.dark-mode .expense-item,
+body.dark-mode .category-row,
+body.dark-mode .side-menu,
+body.dark-mode .bottom-nav,
+body.dark-mode .delete-btn,
+body.dark-mode .secondary-btn,
+body.dark-mode #expense-form input,
+body.dark-mode #expense-form select,
+body.dark-mode #search-input,
+body.dark-mode .filter-row select,
+body.dark-mode .filter-row input {
+  background-color: #1e1e1e;
+  color: #eee;
+  border-color: #333;
+}
+body.dark-mode .card-label,
+body.dark-mode .expense-note,
+body.dark-mode .stat-bar-category,
+body.dark-mode .pie-legend-label,
+body.dark-mode .empty-text,
+body.dark-mode #expense-form label {
+  color: #aaa;
+}
+body.dark-mode .expense-category,
+body.dark-mode .category-row-name,
+body.dark-mode .menu-item-btn,
+body.dark-mode .list-title,
+body.dark-mode .recent-expenses h2,
+body.dark-mode .category-breakdown h2 {
+  color: #eee;
+}
+body.dark-mode .stat-bar-track { background: #333; }
+body.dark-mode .side-menu-footer { border-color: #333; }
+
+
