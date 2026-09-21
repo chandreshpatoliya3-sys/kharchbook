@@ -196,6 +196,7 @@ function openAddForm() {
   deleteBtn.classList.add('hidden');
   expenseForm.reset();
   entryType.value = 'expense';
+  updateCategoryOptions();
   showScreen(addExpenseScreen);
   setActiveNav(null);
 }
@@ -203,10 +204,11 @@ function openAddForm() {
 // ===== OPEN FORM FOR EDITING =====
 function openEditForm(expense) {
   editingId = expense.id;
-  formTitle.textContent = 'Edit Expense';
+  formTitle.textContent = 'Edit Entry';
   deleteBtn.classList.remove('hidden');
 
-    entryType.value = getType(expense);
+  entryType.value = getType(expense);
+  updateCategoryOptions();
   document.getElementById('amount').value = expense.amount;
   document.getElementById('category').value = expense.category;
   document.getElementById('date').value = expense.date;
