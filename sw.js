@@ -1,7 +1,5 @@
-// A name for this version of our cache — change this if you ever want to force-update cached files
-const CACHE_NAME = 'kharchbook-cache-v1';
+const CACHE_NAME = 'kharchbook-cache-v2';
 
-// List of files to save for offline use
 const FILES_TO_CACHE = [
   './',
   './index.html',
@@ -12,8 +10,8 @@ const FILES_TO_CACHE = [
   './icon-512.png'
 ];
 
-// When the service worker installs, save all our files into the cache
 self.addEventListener('install', function (event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
       return cache.addAll(FILES_TO_CACHE);
@@ -21,7 +19,19 @@ self.addEventListener('install', function (event) {
   );
 });
 
-// When the app requests a file, try the cache first, fall back to the internet
+self.addEventListener('activate', function (event) {
+  event.waitUntil(
+    caches.keys().then(function (cacheNames) {
+      return Promise.all(
+        cacheNames.filter(function (name) { return name !== CACHE_NAME; })
+                   .map(function (name) { return caches.delete(name); })
+      );
+    }).then(function () {
+      return self.clients.claim();
+    })
+  );
+});
+
 self.addEventListener('fetch', function (event) {
   event.respondWith(
     caches.match(event.request).then(function (cachedResponse) {
