@@ -21,6 +21,7 @@ const navStats = document.getElementById('nav-stats');
 const statsScreen = document.getElementById('stats-screen');
 const exportBtn = document.getElementById('export-btn'); 
 const entryType = document.getElementById('entry-type');
+const editBudgetBtn = document.getElementById('edit-budget-btn');
 
 const menuBtn = document.getElementById('menu-btn');
 const sideMenu = document.getElementById('side-menu');
