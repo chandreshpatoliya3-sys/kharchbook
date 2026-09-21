@@ -601,6 +601,12 @@ function renderProfile() {
   const profile = loadProfile();
   sideMenuName.textContent = profile.name ? profile.name : 'Tap to set your name';
   sideMenuEmail.textContent = profile.email ? profile.email : 'Tap to add email';
+
+  const count = loadExpenses().length;
+  const statEl = document.getElementById('side-menu-stat');
+  if (statEl) {
+    statEl.textContent = count + (count === 1 ? ' entry tracked' : ' entries tracked');
+  }
 }
 
 function openSideMenu() {
