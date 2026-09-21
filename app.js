@@ -687,4 +687,7 @@ clearFiltersBtn.addEventListener('click', function () {
 });
 
 // ===== INITIAL LOAD =====
+applyDarkMode(loadDarkModePref());
+if (loadPin()) { menuPinBtn.textContent = '🔓 Remove PIN Lock'; }
+checkPinLock();
 renderRecentExpenses();
