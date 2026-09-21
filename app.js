@@ -1641,3 +1641,15 @@ refreshCategories();
 processRecurring();
 renderQuickAddButtons();
 renderRecentExpenses();
+
+// If opened from a home-screen shortcut, jump straight to that screen
+(function handleShortcut() {
+  const action = new URLSearchParams(window.location.search).get('action');
+  if (action === 'add') {
+    openAddForm();
+  } else if (action === 'stats') {
+    showScreen(statsScreen);
+    setActiveNav(navStats);
+    renderStatsChart();
+  }
+})();
