@@ -41,9 +41,64 @@ const pinUnlockBtn = document.getElementById('pin-unlock-btn');
 const pinError = document.getElementById('pin-error');
 const pinForgotBtn = document.getElementById('pin-forgot-btn');
 
+const filterMonth = document.getElementById('filter-month');
+const sortSelect = document.getElementById('sort-select');
+const filterResult = document.getElementById('filter-result');
+const recurringCheck = document.getElementById('recurring-check');
+const recurringWrap = document.getElementById('recurring-wrap');
+const backupBtn = document.getElementById('backup-btn');
+const restoreBtn = document.getElementById('restore-btn');
+const restoreInput = document.getElementById('restore-input');
+const menuCategoriesBtn = document.getElementById('menu-categories-btn');
+const menuRecurringBtn = document.getElementById('menu-recurring-btn');
+
 // ===== CATEGORIES =====
-const EXPENSE_CATEGORIES = ['Food', 'Travel', 'Shopping', 'Bills', 'Medical', 'Entertainment', 'Other'];
+const DEFAULT_EXPENSE_CATEGORIES = ['Food', 'Travel', 'Shopping', 'Bills', 'Medical', 'Entertainment', 'Other'];
 const INCOME_CATEGORIES = ['Salary', 'Sell', 'Other'];
+
+// This list grows when the user adds their own categories
+let EXPENSE_CATEGORIES = DEFAULT_EXPENSE_CATEGORIES.slice();
+
+const EXTRA_COLORS = ['#5c6bc0','#26a69a','#ec407a','#7e57c2','#00897b','#c0ca33','#f4511e','#546e7a'];
+
+function loadCustomCategories() {
+  const data = localStorage.getItem('kharchbook-custom-categories');
+  return data ? JSON.parse(data) : [];
+}
+
+function saveCustomCategories(list) {
+  localStorage.setItem('kharchbook-custom-categories', JSON.stringify(list));
+}
+
+// Rebuilds the category list and gives each custom one an emoji + colour
+function refreshCategories() {
+  const custom = loadCustomCategories();
+  EXPENSE_CATEGORIES = DEFAULT_EXPENSE_CATEGORIES.slice();
+
+  custom.forEach(function (cat, i) {
+    if (EXPENSE_CATEGORIES.indexOf(cat) === -1) {
+      EXPENSE_CATEGORIES.push(cat);
+    }
+    if (!CATEGORY_EMOJIS[cat]) CATEGORY_EMOJIS[cat] = '🏷️';
+    if (!CATEGORY_COLORS[cat]) CATEGORY_COLORS[cat] = EXTRA_COLORS[i % EXTRA_COLORS.length];
+  });
+
+  renderFilterCategoryOptions();
+}
+
+// Fills the filter dropdown on the Expenses screen
+function renderFilterCategoryOptions() {
+  if (!filterCategory) return;
+  const current = filterCategory.value;
+  let html = '<option value="">All Categories</option>';
+  EXPENSE_CATEGORIES.concat(INCOME_CATEGORIES).forEach(function (cat, i, arr) {
+    if (arr.indexOf(cat) === i) {
+      html += '<option value="' + cat + '">' + getEmoji(cat) + ' ' + cat + '</option>';
+    }
+  });
+  filterCategory.innerHTML = html;
+  filterCategory.value = current;
+}
 
 const CATEGORY_EMOJIS = {
   'Food': '🍕',
@@ -229,6 +284,8 @@ function openAddForm() {
   deleteBtn.classList.add('hidden');
   expenseForm.reset();
   entryType.value = 'expense';
+  if (recurringWrap) recurringWrap.classList.remove('hidden');
+  if (recurringCheck) recurringCheck.checked = false;
   updateCategoryOptions();
   showScreen(addExpenseScreen);
   setActiveNav(null);
@@ -240,7 +297,8 @@ function openEditForm(expense) {
   formTitle.textContent = 'Edit Entry';
   deleteBtn.classList.remove('hidden');
 
-  entryType.value = getType(expense);
+    entryType.value = getType(expense);
+  if (recurringWrap) recurringWrap.classList.add('hidden');
   updateCategoryOptions();
   document.getElementById('amount').value = expense.amount;
   document.getElementById('category').value = expense.category;
@@ -288,8 +346,25 @@ expenseForm.addEventListener('submit', function (event) {
       const proceed = confirm('This looks like a duplicate (same date, amount, category). Add anyway?');
       if (!proceed) return;
     }
-    formData.id = Date.now();
+        formData.id = Date.now();
     expenses.push(formData);
+
+    if (recurringCheck && recurringCheck.checked) {
+      const templates = loadRecurring();
+      const templateId = 'r' + Date.now();
+      templates.push({
+        id: templateId,
+        type: formData.type,
+        amount: formData.amount,
+        category: formData.category,
+        note: formData.note,
+        paymentMethod: formData.paymentMethod,
+        day: Number(formData.date.split('-')[2])
+      });
+      saveRecurring(templates);
+      formData.fromRecurring = templateId;
+      alert('Saved! This will repeat automatically every month.');
+    }
   } else {
     const index = expenses.findIndex(function (exp) { return exp.id === editingId; });
     if (index !== -1) {
@@ -436,13 +511,16 @@ function renderRecentExpenses() {
 }
 
 // ===== RENDER: FULL LIST SCREEN (with search + filters) =====
+
 function renderFullList() {
   let expenses = loadExpenses();
+  const totalCount = expenses.length;
 
   const searchTerm = searchInput.value.trim().toLowerCase();
   if (searchTerm !== '') {
     expenses = expenses.filter(function (exp) {
-      return exp.note && exp.note.toLowerCase().includes(searchTerm);
+      return (exp.note && exp.note.toLowerCase().includes(searchTerm)) ||
+             (exp.category && exp.category.toLowerCase().includes(searchTerm));
     });
   }
 
@@ -456,17 +534,48 @@ function renderFullList() {
     expenses = expenses.filter(function (exp) { return exp.date === dateValue; });
   }
 
-  if (expenses.length === 0) {
-    listContainer.innerHTML = '<p class="empty-text">No matching expenses found.</p>';
+  // Month filter: compares just the "YYYY-MM" part of the date
+  const monthValue = filterMonth ? filterMonth.value : '';
+  if (monthValue !== '') {
+    expenses = expenses.filter(function (exp) { return exp.date.slice(0, 7) === monthValue; });
+  }
+
+  // ----- SORTING -----
+  const sortBy = sortSelect ? sortSelect.value : 'newest';
+  let sorted = expenses.slice();
+
+  if (sortBy === 'highest') {
+    sorted.sort(function (a, b) { return b.amount - a.amount; });
+  } else if (sortBy === 'lowest') {
+    sorted.sort(function (a, b) { return a.amount - b.amount; });
+  } else if (sortBy === 'oldest') {
+    sorted.sort(function (a, b) { return a.date.localeCompare(b.date) || a.id - b.id; });
+  } else {
+    sorted.sort(function (a, b) { return b.date.localeCompare(a.date) || b.id - a.id; });
+  }
+
+  // ----- RESULT SUMMARY LINE -----
+  if (filterResult) {
+    if (sorted.length === totalCount) {
+      filterResult.textContent = totalCount + (totalCount === 1 ? ' entry' : ' entries');
+    } else {
+      const sum = sorted.reduce(function (s, e) {
+        return getType(e) === 'expense' ? s + e.amount : s;
+      }, 0);
+      filterResult.textContent = sorted.length + ' of ' + totalCount + ' shown • Spent ₹' + sum;
+    }
+  }
+
+  if (sorted.length === 0) {
+    listContainer.innerHTML = '<p class="empty-text">No matching entries found.<br>Try clearing the filters.</p>';
     return;
   }
 
-  const sorted = expenses.slice().reverse();
   let html = '';
   sorted.forEach(function (exp) { html += buildExpenseItemHTML(exp); });
 
   listContainer.innerHTML = html;
-  attachExpenseClickHandlers(listContainer, expenses);
+  attachExpenseClickHandlers(listContainer, sorted);
 }
 
 // ===== SHARED HELPERS =====
@@ -781,6 +890,275 @@ menuPinBtn.addEventListener('click', function () {
     closeSideMenu();
   }
 });
+
+// ===== FULL BACKUP (JSON) =====
+function createBackup() {
+  const backup = {
+    app: 'KharchBook',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    expenses: loadExpenses(),
+    budgets: loadBudgets(),
+    customCategories: loadCustomCategories(),
+    recurring: loadRecurring(),
+    profile: loadProfile()
+  };
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const stamp = new Date().toISOString().split('T')[0];
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'kharchbook-backup-' + stamp + '.json';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  alert('Backup saved to your Downloads folder.\n\nKeep a copy in Google Drive or email it to yourself!');
+}
+
+// ===== RESTORE FROM BACKUP =====
+function restoreBackup(file) {
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch (err) {
+      alert('That file could not be read. Please pick a KharchBook backup (.json) file.');
+      return;
+    }
+
+    if (!data || !Array.isArray(data.expenses)) {
+      alert('This does not look like a KharchBook backup file.');
+      return;
+    }
+
+    const existing = loadExpenses().length;
+    const msg = 'Backup found: ' + data.expenses.length + ' entries.\n\n' +
+                (existing > 0
+                  ? 'You currently have ' + existing + ' entries. Restoring will REPLACE them.\n\nContinue?'
+                  : 'Restore these entries now?');
+    if (!confirm(msg)) return;
+
+    saveExpenses(data.expenses);
+    if (data.budgets) saveBudgets(data.budgets);
+    if (data.customCategories) saveCustomCategories(data.customCategories);
+    if (data.recurring) saveRecurring(data.recurring);
+    if (data.profile) saveProfile(data.profile);
+
+    refreshCategories();
+    renderQuickAddButtons();
+    renderRecentExpenses();
+    alert('Restored successfully! ' + data.expenses.length + ' entries are back.');
+  };
+
+  reader.onerror = function () {
+    alert('Could not read that file. Please try again.');
+  };
+
+  reader.readAsText(file);
+}
+
+// ===== RECURRING ENTRIES =====
+function loadRecurring() {
+  const data = localStorage.getItem('kharchbook-recurring');
+  return data ? JSON.parse(data) : [];
+}
+
+function saveRecurring(list) {
+  localStorage.setItem('kharchbook-recurring', JSON.stringify(list));
+}
+
+// Runs on app start: adds this month's entry for each recurring template
+function processRecurring() {
+  const templates = loadRecurring();
+  if (templates.length === 0) return;
+
+  const expenses = loadExpenses();
+  const today = new Date();
+  const ym = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+  let added = 0;
+
+  templates.forEach(function (t) {
+    // Already generated for this month? Then skip.
+    const already = expenses.some(function (e) {
+      return e.fromRecurring === t.id && e.date.slice(0, 7) === ym;
+    });
+    if (already) return;
+
+    const day = Math.min(t.day || 1, lastDayOfMonth);
+    const dateStr = ym + '-' + String(day).padStart(2, '0');
+
+    // Don't add it before its day has arrived
+    if (new Date(dateStr + 'T00:00:00') > today) return;
+
+    expenses.push({
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      type: t.type || 'expense',
+      amount: t.amount,
+      category: t.category,
+      date: dateStr,
+      note: t.note || '',
+      paymentMethod: t.paymentMethod || 'Cash',
+      fromRecurring: t.id
+    });
+    added++;
+  });
+
+  if (added > 0) saveExpenses(expenses);
+}
+
+// ===== SIMPLE REUSABLE SHEET (used by Categories & Recurring) =====
+function openSheet(title, innerHTML) {
+  let overlay = document.getElementById('kb-sheet-overlay');
+  let sheet = document.getElementById('kb-sheet');
+
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'kb-sheet-overlay';
+    overlay.className = 'period-overlay hidden';
+    document.body.appendChild(overlay);
+
+    sheet = document.createElement('div');
+    sheet.id = 'kb-sheet';
+    sheet.className = 'period-summary-modal hidden';
+    document.body.appendChild(sheet);
+
+    overlay.addEventListener('click', closeSheet);
+  }
+
+  sheet.innerHTML = `
+    <div class="period-summary-header">
+      <h2>${title}</h2>
+      <button class="text-btn" id="kb-sheet-close">✕</button>
+    </div>
+    <div class="kb-sheet-body">${innerHTML}</div>
+  `;
+  sheet.querySelector('#kb-sheet-close').addEventListener('click', closeSheet);
+
+  overlay.classList.remove('hidden');
+  sheet.classList.remove('hidden');
+  return sheet;
+}
+
+function closeSheet() {
+  const overlay = document.getElementById('kb-sheet-overlay');
+  const sheet = document.getElementById('kb-sheet');
+  if (overlay) overlay.classList.add('hidden');
+  if (sheet) sheet.classList.add('hidden');
+}
+
+// ===== MANAGE CATEGORIES =====
+function openCategoriesSheet() {
+  closeSideMenu();
+  const custom = loadCustomCategories();
+
+  let rows = '';
+  DEFAULT_EXPENSE_CATEGORIES.forEach(function (cat) {
+    rows += `<div class="kb-row"><span>${getEmoji(cat)} ${cat}</span><em class="kb-tag">default</em></div>`;
+  });
+  custom.forEach(function (cat) {
+    rows += `<div class="kb-row"><span>${getEmoji(cat)} ${cat}</span>
+      <button class="kb-del" data-cat="${cat}">Remove</button></div>`;
+  });
+
+  const sheet = openSheet('Manage Categories', `
+    ${rows}
+    <button class="primary-btn" id="kb-add-cat">+ Add New Category</button>
+    <p class="kb-hint">Removing a category won't delete past entries that used it.</p>
+  `);
+
+  sheet.querySelector('#kb-add-cat').addEventListener('click', function () {
+    const name = prompt('New category name:');
+    if (name === null) return;
+    const clean = name.trim();
+    if (clean === '') { alert('Please enter a name.'); return; }
+
+    const all = EXPENSE_CATEGORIES.concat(INCOME_CATEGORIES);
+    if (all.some(function (c) { return c.toLowerCase() === clean.toLowerCase(); })) {
+      alert('That category already exists.');
+      return;
+    }
+
+    const list = loadCustomCategories();
+    list.push(clean);
+    saveCustomCategories(list);
+    refreshCategories();
+    renderQuickAddButtons();
+    openCategoriesSheet();
+  });
+
+  sheet.querySelectorAll('.kb-del').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const cat = btn.getAttribute('data-cat');
+      if (!confirm('Remove the "' + cat + '" category?')) return;
+      const list = loadCustomCategories().filter(function (c) { return c !== cat; });
+      saveCustomCategories(list);
+      refreshCategories();
+      renderQuickAddButtons();
+      openCategoriesSheet();
+    });
+  });
+}
+
+// ===== MANAGE RECURRING =====
+function openRecurringSheet() {
+  closeSideMenu();
+  const templates = loadRecurring();
+
+  let rows = '';
+  if (templates.length === 0) {
+    rows = '<p class="empty-text">No recurring entries yet.<br>Tick "Repeat every month" when adding an entry.</p>';
+  } else {
+    templates.forEach(function (t) {
+      const kind = (t.type === 'income') ? '💰' : '💸';
+      rows += `
+        <div class="kb-row">
+          <span>${kind} ${getEmoji(t.category)} ${t.category} — ₹${t.amount}
+            <br><small class="kb-sub">Day ${t.day} of every month${t.note ? ' • ' + t.note : ''}</small></span>
+          <button class="kb-del" data-id="${t.id}">Stop</button>
+        </div>`;
+    });
+  }
+
+  const sheet = openSheet('Recurring Entries', rows +
+    '<p class="kb-hint">These are added automatically each month when their day arrives.</p>');
+
+  sheet.querySelectorAll('.kb-del').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const id = btn.getAttribute('data-id');
+      if (!confirm('Stop this recurring entry? Past entries stay saved.')) return;
+      saveRecurring(loadRecurring().filter(function (t) { return t.id !== id; }));
+      openRecurringSheet();
+    });
+  });
+}
+
+// ===== NEW EVENT LISTENERS =====
+if (backupBtn) backupBtn.addEventListener('click', createBackup);
+
+if (restoreBtn) {
+  restoreBtn.addEventListener('click', function () { restoreInput.click(); });
+}
+if (restoreInput) {
+  restoreInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (file) restoreBackup(file);
+    restoreInput.value = '';
+  });
+}
+
+if (menuCategoriesBtn) menuCategoriesBtn.addEventListener('click', openCategoriesSheet);
+if (menuRecurringBtn) menuRecurringBtn.addEventListener('click', openRecurringSheet);
+
+if (filterMonth) filterMonth.addEventListener('change', renderFullList);
+if (sortSelect) sortSelect.addEventListener('change', renderFullList);
 
 // ===== EXPORT STATS AS PDF (SVG-based so it prints reliably) =====
 function exportStatsPDF() {
@@ -1250,6 +1628,8 @@ clearFiltersBtn.addEventListener('click', function () {
   searchInput.value = '';
   filterCategory.value = '';
   filterDate.value = '';
+  if (filterMonth) filterMonth.value = '';
+  if (sortSelect) sortSelect.value = 'newest';
   renderFullList();
 });
 
@@ -1257,5 +1637,7 @@ clearFiltersBtn.addEventListener('click', function () {
 applyDarkMode(loadDarkModePref());
 if (loadPin()) { menuPinBtn.textContent = '🔓 Remove PIN Lock'; }
 checkPinLock();
+refreshCategories();
+processRecurring();
 renderQuickAddButtons();
 renderRecentExpenses();
