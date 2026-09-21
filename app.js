@@ -589,10 +589,86 @@ menuLogoutBtn.addEventListener('click', function () {
 // Exit the app
 menuExitBtn.addEventListener('click', function () {
   window.close();
-  // If the browser blocks window.close() (common in a normal tab), tell the user why
   setTimeout(function () {
     alert('Your browser doesn\'t allow apps to close themselves. You can close this tab manually.');
   }, 300);
+});
+
+// ===== DARK MODE =====
+function loadDarkModePref() {
+  return localStorage.getItem('kharchbook-darkmode') === 'true';
+}
+
+function applyDarkMode(isDark) {
+  if (isDark) {
+    document.body.classList.add('dark-mode');
+    menuDarkModeBtn.textContent = '☀️ Light Mode';
+  } else {
+    document.body.classList.remove('dark-mode');
+    menuDarkModeBtn.textContent = '🌙 Dark Mode';
+  }
+}
+
+menuDarkModeBtn.addEventListener('click', function () {
+  const isDark = !document.body.classList.contains('dark-mode');
+  localStorage.setItem('kharchbook-darkmode', isDark);
+  applyDarkMode(isDark);
+});
+
+// ===== PIN LOCK =====
+function loadPin() {
+  return localStorage.getItem('kharchbook-pin');
+}
+
+function savePin(pin) {
+  localStorage.setItem('kharchbook-pin', pin);
+}
+
+function removePin() {
+  localStorage.removeItem('kharchbook-pin');
+}
+
+function checkPinLock() {
+  if (loadPin()) {
+    pinLockScreen.classList.remove('hidden');
+  } else {
+    pinLockScreen.classList.add('hidden');
+  }
+}
+
+pinUnlockBtn.addEventListener('click', function () {
+  if (pinInput.value === loadPin()) {
+    pinLockScreen.classList.add('hidden');
+    pinInput.value = '';
+    pinError.classList.add('hidden');
+  } else {
+    pinError.classList.remove('hidden');
+  }
+});
+
+menuPinBtn.addEventListener('click', function () {
+  const savedPin = loadPin();
+  if (savedPin) {
+    const entered = prompt('Enter current PIN to remove lock:');
+    if (entered === savedPin) {
+      removePin();
+      alert('PIN lock removed.');
+      menuPinBtn.textContent = '🔒 Set PIN Lock';
+    } else if (entered !== null) {
+      alert('Incorrect PIN.');
+    }
+  } else {
+    const newPin = prompt('Set a 4-digit PIN:');
+    if (newPin === null) return;
+    if (!/^\d{4}$/.test(newPin)) {
+      alert('PIN must be exactly 4 digits.');
+      return;
+    }
+    savePin(newPin);
+    alert('PIN lock enabled!');
+    menuPinBtn.textContent = '🔓 Remove PIN Lock';
+    closeSideMenu();
+  }
 });
 
 // ===== FILTER EVENT LISTENERS =====
