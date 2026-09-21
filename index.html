@@ -65,7 +65,10 @@
       <p class="empty-text">No expenses yet. Tap + to add one.</p>
     </section>
 
-    <button id="export-btn" class="secondary-btn">⬇ Export All Data (CSV)</button>
+        <button id="export-btn" class="secondary-btn">⬇ Export as CSV</button>
+    <button id="backup-btn" class="secondary-btn">💾 Save Full Backup</button>
+    <button id="restore-btn" class="secondary-btn">♻️ Restore from Backup</button>
+    <input type="file" id="restore-input" accept=".json" class="hidden">
 
   </main>
 
@@ -112,6 +115,11 @@
         <option value="Bank">Bank</option>
       </select>
 
+            <label class="checkbox-label" id="recurring-wrap">
+        <input type="checkbox" id="recurring-check">
+        <span>🔁 Repeat this every month</span>
+      </label>
+
       <button type="submit" class="primary-btn">Save Expense</button>
       <button type="button" id="delete-btn" class="delete-btn hidden">Delete Expense</button>
     </form>
@@ -126,22 +134,25 @@
 
     <input type="text" id="search-input" placeholder="Search by note...">
 
-    <div class="filter-row">
+        <div class="filter-row">
       <select id="filter-category">
         <option value="">All Categories</option>
-        <option value="Food">Food</option>
-        <option value="Travel">Travel</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Bills">Bills</option>
-        <option value="Medical">Medical</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Other">Other</option>
       </select>
+      <select id="sort-select">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="highest">Highest ₹</option>
+        <option value="lowest">Lowest ₹</option>
+      </select>
+    </div>
 
+    <div class="filter-row">
       <input type="date" id="filter-date">
+      <input type="month" id="filter-month">
     </div>
 
     <button id="clear-filters-btn" class="text-btn">Clear Filters</button>
+    <p class="filter-result" id="filter-result"></p>
 
     <div id="expense-list-container"></div>
   </main>
@@ -191,6 +202,8 @@
       <button id="menu-share-btn" class="menu-item-btn">📤 Share App</button>
       <button id="menu-rate-btn" class="menu-item-btn">⭐ Rate App</button>
       <button id="menu-logout-btn" class="menu-item-btn">🔄 Reset Profile</button>
+            <button id="menu-categories-btn" class="menu-item-btn">🏷️ Manage Categories</button>
+      <button id="menu-recurring-btn" class="menu-item-btn">🔁 Recurring Entries</button>
       <button id="menu-pin-btn" class="menu-item-btn">🔒 Set PIN Lock</button>
       <button id="menu-exit-btn" class="menu-item-btn">🚪 Exit</button>
     </div>
