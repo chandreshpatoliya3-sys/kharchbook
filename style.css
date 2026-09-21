@@ -560,4 +560,45 @@ body.dark-mode .pin-lock-screen { background: #121212; }
 body.dark-mode .pin-lock-box { background: #1e1e1e; color: #eee; }
 body.dark-mode #pin-input { background: #2a2a2a; color: #eee; border-color: #444; }
 
+/* Category select correction */
+.budget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.budget-header h2 { margin-bottom: 0; }
 
+/* Quick Add */
+.quick-add-section { margin-bottom: 20px; }
+.quick-add-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.quick-add-btn {
+  flex-shrink: 0; background: white; border: 1px solid #ddd;
+  border-radius: 10px; padding: 10px 14px; font-size: 12px;
+  text-align: center; color: #444; line-height: 1.6;
+}
+
+/* Budget Tracker */
+.budget-section { margin-bottom: 20px; }
+.budget-row { margin-bottom: 12px; }
+.budget-row-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #444; }
+.budget-bar-track { background: #e8e8e8; border-radius: 6px; height: 10px; overflow: hidden; }
+.budget-bar-fill { height: 100%; border-radius: 6px; }
+
+/* Trend chart */
+.trend-chart-wrapper { margin-bottom: 24px; }
+.trend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.trend-label { width: 80px; font-size: 12px; color: #666; }
+.trend-bar-track { flex: 1; background: #e8e8e8; border-radius: 6px; height: 16px; overflow: hidden; }
+.trend-bar-fill { height: 100%; background: #90a4ae; border-radius: 6px; }
+.trend-bar-fill.current { background: #2e7d32; }
+.trend-amount { width: 60px; text-align: right; font-size: 13px; font-weight: bold; color: #2e7d32; }
+
+/* Swipe to delete */
+.expense-item-wrapper { position: relative; overflow: hidden; border-radius: 10px; margin-bottom: 8px; }
+.expense-item-delete-bg {
+  position: absolute; inset: 0; background: #d32f2f; color: white;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 22px; font-size: 13px; font-weight: 600;
+}
+.expense-item-wrapper .expense-item { margin-bottom: 0; transition: transform 0.2s ease; }
+
+/* Dark mode extras */
+body.dark-mode .quick-add-btn { background: #1e1e1e; color: #eee; border-color: #333; }
+body.dark-mode .budget-bar-track, body.dark-mode .trend-bar-track { background: #333; }
+body.dark-mode .budget-row-label, body.dark-mode .trend-label { color: #aaa; }
