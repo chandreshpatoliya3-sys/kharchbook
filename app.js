@@ -245,7 +245,17 @@ expenseForm.addEventListener('submit', function (event) {
     return;
   }
 
-  if (editingId === null) {
+    if (editingId === null) {
+    const isDuplicate = expenses.some(function (exp) {
+      return exp.date === formData.date &&
+             exp.amount === formData.amount &&
+             exp.category === formData.category &&
+             getType(exp) === formData.type;
+    });
+    if (isDuplicate) {
+      const proceed = confirm('This looks like a duplicate (same date, amount, category). Add anyway?');
+      if (!proceed) return;
+    }
     formData.id = Date.now();
     expenses.push(formData);
   } else {
