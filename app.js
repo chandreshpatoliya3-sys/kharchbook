@@ -442,24 +442,62 @@ function buildExpenseItemHTML(exp) {
   const isIncome = getType(exp) === 'income';
   const sign = isIncome ? '+' : '−';
   const incomeClass = isIncome ? ' income' : '';
-  const label = isIncome ? '💰 Income' : getEmoji(exp.category) + ' ' + exp.category;
+  const label = getEmoji(exp.category) + ' ' + exp.category;
 
   return `
-    <div class="expense-item" data-id="${exp.id}">
-      <div>
-        <p class="expense-category">${label}</p>
-        <p class="expense-note">${exp.note || ''} • ${exp.date}</p>
+    <div class="expense-item-wrapper" data-id="${exp.id}">
+      <div class="expense-item-delete-bg">🗑️ Delete</div>
+      <div class="expense-item" data-id="${exp.id}">
+        <div>
+          <p class="expense-category">${label}</p>
+          <p class="expense-note">${exp.note || ''} • ${exp.date}</p>
+        </div>
+        <p class="expense-amount${incomeClass}">${sign}₹${exp.amount}</p>
       </div>
-      <p class="expense-amount${incomeClass}">${sign}₹${exp.amount}</p>
     </div>
   `;
 }
 
 function attachExpenseClickHandlers(container, expenses) {
-  const items = container.querySelectorAll('.expense-item');
-  items.forEach(function (item) {
+  const wrappers = container.querySelectorAll('.expense-item-wrapper');
+  wrappers.forEach(function (wrapper) {
+    const item = wrapper.querySelector('.expense-item');
+    const deleteBg = wrapper.querySelector('.expense-item-delete-bg');
+    const id = Number(wrapper.getAttribute('data-id'));
+    let startX = 0;
+    let currentX = 0;
+    let isSwiping = false;
+
+    item.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+      isSwiping = false;
+    });
+
+    item.addEventListener('touchmove', function (e) {
+      currentX = e.touches[0].clientX - startX;
+      if (currentX < 0 && currentX > -90) {
+        item.style.transform = 'translateX(' + currentX + 'px)';
+        isSwiping = true;
+      }
+    });
+
+    item.addEventListener('touchend', function () {
+      item.style.transform = (currentX < -50) ? 'translateX(-80px)' : 'translateX(0)';
+      currentX = 0;
+    });
+
+    deleteBg.addEventListener('click', function () {
+      const confirmed = confirm('Delete this entry?');
+      if (!confirmed) return;
+      let allExpenses = loadExpenses();
+      allExpenses = allExpenses.filter(function (exp) { return exp.id !== id; });
+      saveExpenses(allExpenses);
+      renderRecentExpenses();
+      renderFullList();
+    });
+
     item.addEventListener('click', function () {
-      const id = Number(item.getAttribute('data-id'));
+      if (isSwiping) { isSwiping = false; return; }
       const expense = expenses.find(function (exp) { return exp.id === id; });
       if (expense) openEditForm(expense);
     });
@@ -700,6 +738,148 @@ menuPinBtn.addEventListener('click', function () {
     closeSideMenu();
   }
 });
+// ===== BUDGET TRACKER =====
+function loadBudgets() {
+  const data = localStorage.getItem('kharchbook-budgets');
+  return data ? JSON.parse(data) : {};
+}
+
+function saveBudgets(budgets) {
+  localStorage.setItem('kharchbook-budgets', JSON.stringify(budgets));
+}
+
+function renderBudgetTracker(monthExpenses) {
+  const container = document.getElementById('budget-container');
+  const budgets = loadBudgets();
+  const budgetCats = Object.keys(budgets);
+
+  if (budgetCats.length === 0) {
+    container.innerHTML = '<p class="empty-text">No budgets set yet. Tap Edit to set one.</p>';
+    return;
+  }
+
+  const monthTotals = {};
+  monthExpenses.forEach(function (exp) {
+    if (!monthTotals[exp.category]) monthTotals[exp.category] = 0;
+    monthTotals[exp.category] += exp.amount;
+  });
+
+  let html = '';
+  budgetCats.forEach(function (cat) {
+    const limit = budgets[cat];
+    const spent = monthTotals[cat] || 0;
+    const percent = Math.min((spent / limit) * 100, 100);
+    let barColor = '#2e7d32';
+    if (percent >= 100) barColor = '#d32f2f';
+    else if (percent >= 80) barColor = '#f9a825';
+
+    html += `
+      <div class="budget-row">
+        <div class="budget-row-label">
+          <span>${getEmoji(cat)} ${cat}</span>
+          <span>₹${spent} / ₹${limit}</span>
+        </div>
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill" style="width:${percent}%; background:${barColor}"></div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+editBudgetBtn.addEventListener('click', function () {
+  const budgets = loadBudgets();
+  for (const cat of EXPENSE_CATEGORIES) {
+    const current = budgets[cat] || '';
+    const input = prompt('Monthly budget for ' + getEmoji(cat) + ' ' + cat + ' (₹, blank = no limit):', current);
+    if (input === null) break;
+    if (input.trim() === '') {
+      delete budgets[cat];
+    } else {
+      const num = Number(input);
+      if (!isNaN(num) && num > 0) budgets[cat] = num;
+    }
+  }
+  saveBudgets(budgets);
+  updateDashboardSummary();
+});
+
+// ===== SPENDING TREND =====
+function renderTrendChart() {
+  const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
+  const container = document.getElementById('trend-chart-container');
+  if (!container) return;
+
+  const today = new Date();
+  const thisMonth = today.getMonth();
+  const thisYear = today.getFullYear();
+  let lastMonth = thisMonth - 1;
+  let lastMonthYear = thisYear;
+  if (lastMonth < 0) { lastMonth = 11; lastMonthYear = thisYear - 1; }
+
+  function toDate(dateStr) { return new Date(dateStr + 'T00:00:00'); }
+
+  const thisMonthTotal = expenses.filter(function (exp) {
+    const d = toDate(exp.date);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  }).reduce(function (s, e) { return s + e.amount; }, 0);
+
+  const lastMonthTotal = expenses.filter(function (exp) {
+    const d = toDate(exp.date);
+    return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+  }).reduce(function (s, e) { return s + e.amount; }, 0);
+
+  const maxVal = Math.max(thisMonthTotal, lastMonthTotal, 1);
+
+  container.innerHTML = `
+    <div class="trend-row">
+      <div class="trend-label">Last Month</div>
+      <div class="trend-bar-track"><div class="trend-bar-fill" style="width:${(lastMonthTotal / maxVal) * 100}%"></div></div>
+      <div class="trend-amount">₹${lastMonthTotal}</div>
+    </div>
+    <div class="trend-row">
+      <div class="trend-label">This Month</div>
+      <div class="trend-bar-track"><div class="trend-bar-fill current" style="width:${(thisMonthTotal / maxVal) * 100}%"></div></div>
+      <div class="trend-amount">₹${thisMonthTotal}</div>
+    </div>
+  `;
+}
+
+// ===== QUICK ADD =====
+function renderQuickAddButtons() {
+  const container = document.getElementById('quick-add-row');
+  if (!container) return;
+
+  let html = '';
+  EXPENSE_CATEGORIES.forEach(function (cat) {
+    html += `<button class="quick-add-btn" data-cat="${cat}">${getEmoji(cat)}<br>${cat}</button>`;
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('.quick-add-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const cat = btn.getAttribute('data-cat');
+      const amountStr = prompt('Amount for ' + getEmoji(cat) + ' ' + cat + ' (₹):');
+      if (amountStr === null) return;
+      const amount = Number(amountStr);
+      if (!amount || amount <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+      const today = new Date().toISOString().split('T')[0];
+      const newEntry = {
+        type: 'expense', amount: amount, category: cat,
+        date: today, note: '', paymentMethod: 'Cash', id: Date.now()
+      };
+      const allExpenses = loadExpenses();
+      allExpenses.push(newEntry);
+      saveExpenses(allExpenses);
+      renderRecentExpenses();
+    });
+  });
+}
+
 
 // ===== FILTER EVENT LISTENERS =====
 
@@ -720,4 +900,5 @@ clearFiltersBtn.addEventListener('click', function () {
 applyDarkMode(loadDarkModePref());
 if (loadPin()) { menuPinBtn.textContent = '🔓 Remove PIN Lock'; }
 checkPinLock();
+renderQuickAddButtons();
 renderRecentExpenses();
