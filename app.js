@@ -39,7 +39,10 @@ const pinInput = document.getElementById('pin-input');
 const pinUnlockBtn = document.getElementById('pin-unlock-btn');
 const pinError = document.getElementById('pin-error');
 
-// ===== CATEGORY EMOJIS =====
+// ===== CATEGORIES =====
+const EXPENSE_CATEGORIES = ['Food', 'Travel', 'Shopping', 'Bills', 'Medical', 'Entertainment', 'Other'];
+const INCOME_CATEGORIES = ['Salary', 'Sell', 'Other'];
+
 const CATEGORY_EMOJIS = {
   'Food': '🍕',
   'Travel': '🚗',
@@ -47,18 +50,29 @@ const CATEGORY_EMOJIS = {
   'Bills': '🧾',
   'Medical': '💊',
   'Entertainment': '🎬',
+  'Salary': '💵',
+  'Sell': '🏷️',
   'Other': '📌'
 };
 
-// Helper: get the emoji for a category (falls back to a dot if unknown)
 function getEmoji(category) {
   return CATEGORY_EMOJIS[category] || '•';
 }
 
-// Helper: older saved entries have no "type" — treat them as expenses
 function getType(entry) {
   return entry.type || 'expense';
 }
+
+// Swap the category dropdown's options based on selected Type
+function updateCategoryOptions() {
+  const categorySelect = document.getElementById('category');
+  const list = entryType.value === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  categorySelect.innerHTML = list.map(function (cat) {
+    return '<option value="' + cat + '">' + getEmoji(cat) + ' ' + cat + '</option>';
+  }).join('');
+}
+
+entryType.addEventListener('change', updateCategoryOptions);
 
 // ===== CATEGORY COLORS (for pie chart) =====
 const CATEGORY_COLORS = {
