@@ -32,6 +32,12 @@ const menuShareBtn = document.getElementById('menu-share-btn');
 const menuRateBtn = document.getElementById('menu-rate-btn');
 const menuLogoutBtn = document.getElementById('menu-logout-btn');
 const menuExitBtn = document.getElementById('menu-exit-btn');
+const menuDarkModeBtn = document.getElementById('menu-darkmode-btn');
+const menuPinBtn = document.getElementById('menu-pin-btn');
+const pinLockScreen = document.getElementById('pin-lock-screen');
+const pinInput = document.getElementById('pin-input');
+const pinUnlockBtn = document.getElementById('pin-unlock-btn');
+const pinError = document.getElementById('pin-error');
 
 // ===== CATEGORY EMOJIS =====
 const CATEGORY_EMOJIS = {
