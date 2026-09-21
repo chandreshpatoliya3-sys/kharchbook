@@ -54,6 +54,60 @@ function getType(entry) {
   return entry.type || 'expense';
 }
 
+// ===== CATEGORY COLORS (for pie chart) =====
+const CATEGORY_COLORS = {
+  'Food': '#ff7043',
+  'Travel': '#29b6f6',
+  'Shopping': '#ab47bc',
+  'Bills': '#ffa726',
+  'Medical': '#ef5350',
+  'Entertainment': '#66bb6a',
+  'Other': '#78909c'
+};
+
+// ===== PIE CHART =====
+function renderPieChart(expenses) {
+  const container = document.getElementById('pie-chart-container');
+  if (expenses.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const totals = {};
+  expenses.forEach(function (exp) {
+    if (!totals[exp.category]) totals[exp.category] = 0;
+    totals[exp.category] += exp.amount;
+  });
+
+  const grandTotal = Object.values(totals).reduce(function (s, v) { return s + v; }, 0);
+  const sortedCategories = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
+
+  let cumulative = 0;
+  const gradientParts = [];
+  sortedCategories.forEach(function (cat) {
+    const percent = (totals[cat] / grandTotal) * 100;
+    const color = CATEGORY_COLORS[cat] || '#999';
+    gradientParts.push(color + ' ' + cumulative + '% ' + (cumulative + percent) + '%');
+    cumulative += percent;
+  });
+  const gradientCSS = 'conic-gradient(' + gradientParts.join(', ') + ')';
+
+  let legendHTML = '';
+  sortedCategories.forEach(function (cat) {
+    const percent = ((totals[cat] / grandTotal) * 100).toFixed(1);
+    const color = CATEGORY_COLORS[cat] || '#999';
+    legendHTML += `
+      <div class="pie-legend-row">
+        <span class="pie-legend-dot" style="background:${color}"></span>
+        <span class="pie-legend-label">${getEmoji(cat)} ${cat}</span>
+        <span class="pie-legend-percent">${percent}%</span>
+      </div>
+    `;
+  });
+
+  container.innerHTML = '<div class="pie-chart" style="background:' + gradientCSS + '"></div><div class="pie-legend">' + legendHTML + '</div>';
+}
+
 // Track which expense we're editing (null = adding a new one)
 let editingId = null;
 
@@ -381,6 +435,7 @@ function attachExpenseClickHandlers(container, expenses) {
 // ===== STATISTICS BAR CHART =====
 function renderStatsChart() {
   const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
+  renderPieChart(expenses);
   const container = document.getElementById('stats-chart-container');
 
   if (expenses.length === 0) {
