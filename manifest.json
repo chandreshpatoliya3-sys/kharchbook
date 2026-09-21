@@ -11,7 +11,23 @@
   "theme_color": "#1e7d3a",
   "lang": "en",
   "dir": "ltr",
-  "categories": ["finance", "productivity", "utilities"],
+    "categories": ["finance", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Add Expense",
+      "short_name": "Add",
+      "description": "Quickly add a new expense entry",
+      "url": "./index.html?action=add",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Stats",
+      "short_name": "Stats",
+      "description": "See your spending charts",
+      "url": "./index.html?action=stats",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "icon-192.png",
