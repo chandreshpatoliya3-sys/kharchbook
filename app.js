@@ -778,21 +778,43 @@ menuPinBtn.addEventListener('click', function () {
     closeSideMenu();
   }
 });
+
 // ===== PERIOD SUMMARY (tap Today/Week/Month cards) =====
+
+// Build the popup in JS so it can never be missing from the HTML
+(function createPeriodModal() {
+  const overlay = document.createElement('div');
+  overlay.id = 'period-summary-overlay';
+  overlay.className = 'period-overlay hidden';
+
+  const modal = document.createElement('div');
+  modal.id = 'period-summary-modal';
+  modal.className = 'period-summary-modal hidden';
+  modal.innerHTML = `
+    <div class="period-summary-header">
+      <h2 id="period-summary-title">Today</h2>
+      <button id="period-summary-close" class="text-btn">✕</button>
+    </div>
+    <p class="period-summary-total" id="period-summary-total">₹0</p>
+    <div id="period-summary-list"></div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(modal);
+
+  overlay.addEventListener('click', closePeriodSummary);
+  modal.querySelector('#period-summary-close').addEventListener('click', closePeriodSummary);
+})();
+
 function openPeriodSummary(period) {
-  const allEntries = loadExpenses();
-  const expenses = allEntries.filter(function (e) { return getType(e) === 'expense'; });
+  const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
   const today = new Date();
   function toDate(dateStr) { return new Date(dateStr + 'T00:00:00'); }
 
   let filtered = [];
   let title = '';
 
-  if (period === 'today') {
-    const todayStr = today.toISOString().split('T')[0];
-    filtered = expenses.filter(function (exp) { return exp.date === todayStr; });
-    title = 'Today';
-  } else if (period === 'week') {
+  if (period === 'week') {
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(today.getDate() - 6);
     sevenDaysAgo.setHours(0, 0, 0, 0);
@@ -809,6 +831,10 @@ function openPeriodSummary(period) {
       return d.getMonth() === m && d.getFullYear() === y;
     });
     title = 'This Month';
+  } else {
+    const todayStr = today.toISOString().split('T')[0];
+    filtered = expenses.filter(function (exp) { return exp.date === todayStr; });
+    title = 'Today';
   }
 
   const total = filtered.reduce(function (s, e) { return s + e.amount; }, 0);
@@ -819,13 +845,12 @@ function openPeriodSummary(period) {
   if (filtered.length === 0) {
     listEl.innerHTML = '<p class="empty-text">No expenses in this period.</p>';
   } else {
-    const sorted = filtered.slice().reverse();
     let html = '';
-    sorted.forEach(function (exp) {
+    filtered.slice().reverse().forEach(function (exp) {
       html += `
         <div class="period-summary-row">
-          <span>${getEmoji(exp.category)} ${exp.category}</span>
-          <span>₹${exp.amount}</span>
+          <span>${getEmoji(exp.category)} ${exp.category}<br><small class="period-row-note">${exp.note || ''} ${formatDate(exp.date)}</small></span>
+          <span class="period-row-amt">₹${exp.amount}</span>
         </div>
       `;
     });
@@ -841,14 +866,13 @@ function closePeriodSummary() {
   document.getElementById('period-summary-modal').classList.add('hidden');
 }
 
-document.querySelectorAll('.card').forEach(function (card) {
-  card.addEventListener('click', function () {
-    openPeriodSummary(card.getAttribute('data-period'));
-  });
+// Event delegation: works even if cards are re-rendered later
+document.addEventListener('click', function (e) {
+  const card = e.target.closest ? e.target.closest('.card') : null;
+  if (card) {
+    openPeriodSummary(card.getAttribute('data-period') || 'today');
+  }
 });
-
-document.getElementById('period-summary-close').addEventListener('click', closePeriodSummary);
-document.getElementById('period-summary-overlay').addEventListener('click', closePeriodSummary);
 
 // ===== BUDGET TRACKER =====
 function loadBudgets() {
