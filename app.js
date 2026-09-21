@@ -506,10 +506,8 @@ function attachExpenseClickHandlers(container, expenses) {
 }
 // ===== STATISTICS BAR CHART =====
 function renderStatsChart() {
-  const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
   renderTrendChart();
   const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
-  const container = document.getElementById('stats-chart-container');
   renderPieChart(expenses);
   const container = document.getElementById('stats-chart-container');
 
