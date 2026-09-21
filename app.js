@@ -782,6 +782,123 @@ menuPinBtn.addEventListener('click', function () {
   }
 });
 
+// ===== EXPORT STATS AS PDF =====
+function exportStatsPDF() {
+  const all = loadExpenses();
+  const expenses = all.filter(function (e) { return getType(e) === 'expense'; });
+  const incomes = all.filter(function (e) { return getType(e) === 'income'; });
+
+  if (expenses.length === 0) {
+    alert('No expense data to export yet.');
+    return;
+  }
+
+  const today = new Date();
+  function toDate(d) { return new Date(d + 'T00:00:00'); }
+
+  const totalIncome = incomes.reduce(function (s, e) { return s + e.amount; }, 0);
+  const totalSpent = expenses.reduce(function (s, e) { return s + e.amount; }, 0);
+
+  const thisMonth = today.getMonth(), thisYear = today.getFullYear();
+  let lastMonth = thisMonth - 1, lastYear = thisYear;
+  if (lastMonth < 0) { lastMonth = 11; lastYear = thisYear - 1; }
+
+  const thisMonthTotal = expenses.filter(function (e) {
+    const d = toDate(e.date);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  }).reduce(function (s, e) { return s + e.amount; }, 0);
+
+  const lastMonthTotal = expenses.filter(function (e) {
+    const d = toDate(e.date);
+    return d.getMonth() === lastMonth && d.getFullYear() === lastYear;
+  }).reduce(function (s, e) { return s + e.amount; }, 0);
+
+  const totals = {};
+  expenses.forEach(function (e) {
+    if (!totals[e.category]) totals[e.category] = 0;
+    totals[e.category] += e.amount;
+  });
+  const sortedCats = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
+
+  // Pie chart gradient
+  let cum = 0;
+  const parts = [];
+  sortedCats.forEach(function (cat) {
+    const pct = (totals[cat] / totalSpent) * 100;
+    const color = CATEGORY_COLORS[cat] || '#999';
+    parts.push(color + ' ' + cum + '% ' + (cum + pct) + '%');
+    cum += pct;
+  });
+  const pieCSS = 'conic-gradient(' + parts.join(', ') + ')';
+
+  let legendRows = '';
+  sortedCats.forEach(function (cat) {
+    const pct = ((totals[cat] / totalSpent) * 100).toFixed(1);
+    const color = CATEGORY_COLORS[cat] || '#999';
+    legendRows += `
+      <tr>
+        <td><span class="pdf-dot" style="background:${color}"></span> ${cat}</td>
+        <td style="text-align:right">₹${totals[cat]}</td>
+        <td style="text-align:right">${pct}%</td>
+      </tr>`;
+  });
+
+  const maxM = Math.max(thisMonthTotal, lastMonthTotal, 1);
+
+  let area = document.getElementById('print-area');
+  if (!area) {
+    area = document.createElement('div');
+    area.id = 'print-area';
+    document.body.appendChild(area);
+  }
+
+  area.innerHTML = `
+    <div class="pdf-report">
+      <h1 class="pdf-title">KharchBook — Spending Report</h1>
+      <p class="pdf-sub">Generated on ${formatDate(today.toISOString().split('T')[0])}</p>
+
+      <div class="pdf-cards">
+        <div class="pdf-card"><span>Total Income</span><strong>₹${totalIncome}</strong></div>
+        <div class="pdf-card"><span>Total Spent</span><strong>₹${totalSpent}</strong></div>
+        <div class="pdf-card"><span>Balance</span><strong>₹${totalIncome - totalSpent}</strong></div>
+      </div>
+
+      <h2 class="pdf-h2">Monthly Comparison</h2>
+      <div class="pdf-bar-row">
+        <span class="pdf-bar-label">Last Month</span>
+        <span class="pdf-bar-track"><span class="pdf-bar-fill" style="width:${(lastMonthTotal / maxM) * 100}%;background:#90a4ae"></span></span>
+        <span class="pdf-bar-amt">₹${lastMonthTotal}</span>
+      </div>
+      <div class="pdf-bar-row">
+        <span class="pdf-bar-label">This Month</span>
+        <span class="pdf-bar-track"><span class="pdf-bar-fill" style="width:${(thisMonthTotal / maxM) * 100}%;background:#2e7d32"></span></span>
+        <span class="pdf-bar-amt">₹${thisMonthTotal}</span>
+      </div>
+
+      <h2 class="pdf-h2">Spending by Category</h2>
+      <div class="pdf-pie-wrap">
+        <div class="pdf-pie" style="background:${pieCSS}"></div>
+      </div>
+      <table class="pdf-table">
+        <thead><tr><th>Category</th><th style="text-align:right">Amount</th><th style="text-align:right">Share</th></tr></thead>
+        <tbody>${legendRows}</tbody>
+        <tfoot><tr><th>Total</th><th style="text-align:right">₹${totalSpent}</th><th style="text-align:right">100%</th></tr></tfoot>
+      </table>
+
+      <p class="pdf-footer">KharchBook • ${expenses.length} expense entries</p>
+    </div>
+  `;
+
+  document.body.classList.add('printing');
+  setTimeout(function () {
+    window.print();
+    setTimeout(function () { document.body.classList.remove('printing'); }, 500);
+  }, 100);
+}
+
+const exportPdfBtn = document.getElementById('export-pdf-btn');
+if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportStatsPDF);
+
 // ===== PERIOD SUMMARY (tap Today/Week/Month cards) =====
 
 // Build the popup in JS so it can never be missing from the HTML
