@@ -656,3 +656,226 @@ body.dark-mode .side-menu-version { color: #555; }
 }
 body.dark-mode .period-summary-modal { background: #1e1e1e; color: #eee; }
 body.dark-mode .period-summary-row { border-color: #333; }
+
+/* ============================================
+   MODERN THEME REFRESH
+   ============================================ */
+* { font-family: 'Inter', -apple-system, Roboto, Arial, sans-serif; }
+
+body {
+  background: #f7f8fa;
+  letter-spacing: -0.01em;
+}
+
+/* Header: gradient + sticky */
+.app-header {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  padding: 18px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.app-header h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
+
+/* Balance card: richer gradient */
+.balance-card {
+  background: linear-gradient(135deg, #2e7d32 0%, #388e3c 55%, #1b5e20 100%);
+  border-radius: 20px;
+  padding: 24px 18px;
+  box-shadow: 0 8px 24px rgba(46,125,50,0.25);
+}
+.balance-amount { font-size: 34px; letter-spacing: -0.03em; }
+.balance-label { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; font-weight: 600; }
+
+/* Summary cards: tappable feel */
+.card {
+  border-radius: 16px;
+  padding: 16px 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.03);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.card:active { transform: scale(0.96); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.card-label { text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; font-weight: 600; }
+.card-amount { font-size: 19px; letter-spacing: -0.02em; }
+
+/* Section headings */
+.recent-expenses h2, .category-breakdown h2,
+.budget-header h2, .list-title, .quick-add-section h2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #1a1a1a;
+}
+
+/* Expense rows */
+.expense-item {
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.03);
+}
+.expense-category { font-size: 14px; font-weight: 600; }
+.expense-amount { font-size: 15px; letter-spacing: -0.02em; }
+.category-row { border-radius: 12px; padding: 13px 15px; box-shadow: 0 1px 5px rgba(0,0,0,0.04); }
+
+/* Buttons */
+.primary-btn {
+  border-radius: 14px;
+  padding: 15px;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  box-shadow: 0 4px 14px rgba(46,125,50,0.3);
+  transition: transform 0.12s ease;
+}
+.primary-btn:active { transform: scale(0.98); }
+.secondary-btn, .delete-btn { border-radius: 14px; transition: transform 0.12s ease; }
+.secondary-btn:active, .delete-btn:active { transform: scale(0.98); }
+
+/* Floating button */
+.fab {
+  width: 60px; height: 60px;
+  font-size: 30px;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  box-shadow: 0 6px 18px rgba(46,125,50,0.4);
+  transition: transform 0.15s ease;
+}
+.fab:active { transform: scale(0.92); }
+
+/* Bottom nav */
+.bottom-nav {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-btn { padding: 15px 0; font-size: 12px; font-weight: 600; transition: color 0.15s ease; }
+
+/* Form inputs */
+#expense-form input, #expense-form select,
+#search-input, .filter-row select, .filter-row input {
+  border-radius: 12px;
+  border: 1.5px solid #e4e6ea;
+  transition: border-color 0.15s ease;
+}
+#expense-form input:focus, #expense-form select:focus, #search-input:focus {
+  outline: none;
+  border-color: #2e7d32;
+}
+#expense-form label { font-weight: 500; font-size: 13px; }
+
+/* Quick add */
+.quick-add-btn {
+  border-radius: 14px;
+  min-width: 78px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.04);
+  font-weight: 500;
+  transition: transform 0.12s ease;
+}
+.quick-add-btn:active { transform: scale(0.94); }
+
+/* Pie & bars */
+.pie-chart { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.stat-bar-fill, .budget-bar-fill, .trend-bar-fill { transition: width 0.4s ease; }
+
+/* Side menu */
+.side-menu { border-radius: 0 20px 20px 0; }
+.side-menu-profile {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  padding: 34px 20px 24px;
+}
+.menu-item-btn { font-weight: 500; transition: background 0.12s ease; }
+.menu-item-btn:active { background: rgba(0,0,0,0.04); }
+
+/* ===== PERIOD SUMMARY POPUP ===== */
+.period-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+}
+.period-overlay.hidden { display: none; }
+.period-summary-modal {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: white;
+  border-radius: 22px 22px 0 0;
+  z-index: 205;
+  max-height: 72vh;
+  overflow-y: auto;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.18);
+}
+.period-summary-modal.hidden { display: none; }
+.period-summary-header { display: flex; justify-content: space-between; align-items: center; }
+.period-summary-header h2 { font-size: 16px; font-weight: 700; }
+.period-summary-header .text-btn { font-size: 18px; color: #888; }
+.period-summary-total {
+  font-size: 30px; font-weight: 700; color: #2e7d32;
+  letter-spacing: -0.03em; margin: 6px 0 18px;
+}
+.period-summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; font-weight: 500;
+}
+.period-row-note { color: #999; font-size: 11px; font-weight: 400; }
+.period-row-amt { font-weight: 700; color: #2e7d32; white-space: nowrap; }
+
+/* ===== DARK MODE (modern) ===== */
+body.dark-mode { background: #0f1113; }
+body.dark-mode .card,
+body.dark-mode .expense-item,
+body.dark-mode .category-row,
+body.dark-mode .quick-add-btn {
+  background: #191c1f;
+  border-color: rgba(255,255,255,0.05);
+}
+body.dark-mode .bottom-nav { background: rgba(25,28,31,0.96); border-color: rgba(255,255,255,0.06); }
+body.dark-mode .period-summary-modal { background: #191c1f; color: #eee; }
+body.dark-mode .period-summary-row { border-color: #262a2e; }
+body.dark-mode .recent-expenses h2, body.dark-mode .category-breakdown h2,
+body.dark-mode .budget-header h2, body.dark-mode .list-title,
+body.dark-mode .quick-add-section h2 { color: #f0f0f0; }
+body.dark-mode #expense-form input, body.dark-mode #expense-form select,
+body.dark-mode #search-input, body.dark-mode .filter-row select,
+body.dark-mode .filter-row input { background: #191c1f; border-color: #2a2e33; }
+
+/* ============================================
+   PDF / PRINT REPORT
+   ============================================ */
+#print-area { display: none; }
+
+.pdf-report { padding: 24px; color: #1a1a1a; background: white; }
+.pdf-title { font-size: 22px; font-weight: 700; color: #2e7d32; margin-bottom: 4px; }
+.pdf-sub { font-size: 12px; color: #777; margin-bottom: 22px; }
+.pdf-h2 { font-size: 15px; font-weight: 700; margin: 24px 0 12px; color: #2e7d32; }
+.pdf-cards { display: flex; gap: 10px; }
+.pdf-card {
+  flex: 1; border: 1px solid #ddd; border-radius: 10px;
+  padding: 12px; text-align: center; display: flex;
+  flex-direction: column; gap: 4px;
+}
+.pdf-card span { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 0.05em; }
+.pdf-card strong { font-size: 17px; color: #2e7d32; }
+.pdf-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pdf-bar-label { width: 80px; font-size: 11px; color: #666; }
+.pdf-bar-track { flex: 1; background: #eee; border-radius: 5px; height: 14px; display: block; overflow: hidden; }
+.pdf-bar-fill { display: block; height: 100%; border-radius: 5px; }
+.pdf-bar-amt { width: 62px; text-align: right; font-size: 12px; font-weight: 700; color: #2e7d32; }
+.pdf-pie-wrap { display: flex; justify-content: center; margin: 16px 0 20px; }
+.pdf-pie { width: 170px; height: 170px; border-radius: 50%; }
+.pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.pdf-table th, .pdf-table td { padding: 9px 6px; border-bottom: 1px solid #e5e5e5; text-align: left; }
+.pdf-table thead th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #777; }
+.pdf-table tfoot th { border-top: 2px solid #2e7d32; border-bottom: none; color: #2e7d32; }
+.pdf-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.pdf-footer { margin-top: 26px; font-size: 10px; color: #aaa; text-align: center; }
+
+@media print {
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block !important; }
+  body { background: white !important; padding: 0 !important; }
+  .pdf-report { padding: 0; }
+  @page { margin: 12mm; }
+}
