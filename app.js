@@ -65,6 +65,14 @@ function getType(entry) {
   return entry.type || 'expense';
 }
 
+// Convert stored "2026-09-21" into display "21-09-2026"
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return parts[2] + '-' + parts[1] + '-' + parts[0];
+}
+
 // Swap the category dropdown's options based on selected Type
 function updateCategoryOptions() {
   const categorySelect = document.getElementById('category');
@@ -474,7 +482,7 @@ function buildExpenseItemHTML(exp) {
       <div class="expense-item" data-id="${exp.id}">
         <div>
           <p class="expense-category">${label}</p>
-          <p class="expense-note">${exp.note || ''} • ${exp.date}</p>
+                    <p class="expense-note">${exp.note || ''} • ${formatDate(exp.date)}</p>
         </div>
         <p class="expense-amount${incomeClass}">${sign}₹${exp.amount}</p>
       </div>
@@ -625,11 +633,6 @@ function renderProfile() {
   sideMenuName.textContent = profile.name ? profile.name : 'Tap to set your name';
   sideMenuEmail.textContent = profile.email ? profile.email : 'Tap to add email';
 
-  const count = loadExpenses().length;
-  const statEl = document.getElementById('side-menu-stat');
-  if (statEl) {
-    statEl.textContent = count + (count === 1 ? ' entry tracked' : ' entries tracked');
-  }
 }
 
 function openSideMenu() {
