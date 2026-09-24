@@ -838,8 +838,17 @@ function removePin() {
 }
 
 function checkPinLock() {
-  if (loadPin()) {
+  const lockType = localStorage.getItem('kharchbook-lock-type');
+  if (lockType === 'device') {
     pinLockScreen.classList.remove('hidden');
+    pinInput.classList.add('hidden');
+    pinUnlockBtn.classList.add('hidden');
+    deviceUnlockBtn.classList.remove('hidden');
+  } else if (lockType === 'pin') {
+    pinLockScreen.classList.remove('hidden');
+    pinInput.classList.remove('hidden');
+    pinUnlockBtn.classList.remove('hidden');
+    deviceUnlockBtn.classList.add('hidden');
   } else {
     pinLockScreen.classList.add('hidden');
   }
@@ -854,43 +863,120 @@ pinUnlockBtn.addEventListener('click', function () {
     pinError.classList.remove('hidden');
   }
 });
+deviceUnlockBtn.addEventListener('click', async function () {
+  const idBase64 = localStorage.getItem('kharchbook-device-credential');
+  if (!idBase64) return;
+  try {
+    const rawId = Uint8Array.from(atob(idBase64), c => c.charCodeAt(0));
+    await navigator.credentials.get({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials: [{ id: rawId, type: 'public-key' }],
+        userVerification: 'required',
+        timeout: 60000
+      }
+    });
+    pinLockScreen.classList.add('hidden');
+    pinError.classList.add('hidden');
+  } catch (err) {
+    pinError.textContent = 'Verification failed or cancelled. Try again.';
+    pinError.classList.remove('hidden');
+  }
+});
 
 pinForgotBtn.addEventListener('click', function () {
-  const confirmed = confirm('This removes the PIN lock. Your expenses are safe. Continue?');
+  const confirmed = confirm(
+    'This removes your screen lock / PIN. Your expenses are safe. Continue?'
+  );
   if (!confirmed) return;
   removePin();
+  localStorage.removeItem('kharchbook-device-credential');
+  localStorage.removeItem('kharchbook-lock-type');
   pinLockScreen.classList.add('hidden');
   pinInput.value = '';
   pinError.classList.add('hidden');
   if (typeof menuPinBtn !== 'undefined' && menuPinBtn) {
-    menuPinBtn.textContent = '🔒 Set PIN Lock';
+    menuPinBtn.textContent = '🔒 Set Screen Lock';
   }
 });
 
-menuPinBtn.addEventListener('click', function () {
-  const savedPin = loadPin();
-  if (savedPin) {
-    const entered = prompt('Enter current PIN to remove lock:');
-    if (entered === savedPin) {
-      removePin();
-      alert('PIN lock removed.');
-      menuPinBtn.textContent = '🔒 Set PIN Lock';
-    } else if (entered !== null) {
-      alert('Incorrect PIN.');
+menuPinBtn.addEventListener('click', async function () {
+  const lockType = localStorage.getItem('kharchbook-lock-type');
+
+  if (lockType) {
+    if (lockType === 'device') {
+      const confirmed = confirm('Remove screen lock from KharchBook?');
+      if (!confirmed) return;
+      localStorage.removeItem('kharchbook-lock-type');
+      localStorage.removeItem('kharchbook-device-credential');
+      alert('Screen lock removed.');
+      menuPinBtn.textContent = '🔒 Set Screen Lock';
+    } else {
+      const entered = prompt('Enter current PIN to remove lock:');
+      if (entered === loadPin()) {
+        removePin();
+        localStorage.removeItem('kharchbook-lock-type');
+        alert('PIN lock removed.');
+        menuPinBtn.textContent = '🔒 Set Screen Lock';
+      } else if (entered !== null) {
+        alert('Incorrect PIN.');
+      }
+    }
+    return;
+  }
+
+  const deviceLockAvailable =
+    window.PublicKeyCredential &&
+    (await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());
+
+  if (deviceLockAvailable) {
+    try {
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: crypto.getRandomValues(new Uint8Array(32)),
+          rp: { name: 'KharchBook' },
+          user: {
+            id: crypto.getRandomValues(new Uint8Array(16)),
+            name: 'kharchbook-user',
+            displayName: 'KharchBook User'
+          },
+          pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required'
+          },
+          timeout: 60000
+        }
+      });
+      const idBase64 = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+      localStorage.setItem('kharchbook-device-credential', idBase64);
+      localStorage.setItem('kharchbook-lock-type', 'device');
+      alert('Screen lock enabled! KharchBook will now ask for your fingerprint/pattern/PIN.');
+      menuPinBtn.textContent = '🔓 Remove Screen Lock';
+      closeSideMenu();
+    } catch (err) {
+      alert('Could not set up screen lock. Using a 4-digit PIN instead.');
+      setupPinFallback();
     }
   } else {
-    const newPin = prompt('Set a 4-digit PIN:');
-    if (newPin === null) return;
-    if (!/^\d{4}$/.test(newPin)) {
-      alert('PIN must be exactly 4 digits.');
-      return;
-    }
-    savePin(newPin);
-    alert('PIN lock enabled!');
-    menuPinBtn.textContent = '🔓 Remove PIN Lock';
-    closeSideMenu();
+    alert('No screen lock (fingerprint/pattern/PIN) found on this device. Using a 4-digit in-app PIN instead.');
+    setupPinFallback();
   }
 });
+
+function setupPinFallback() {
+  const newPin = prompt('Set a 4-digit PIN:');
+  if (newPin === null) return;
+  if (!/^\d{4}$/.test(newPin)) {
+    alert('PIN must be exactly 4 digits.');
+    return;
+  }
+  savePin(newPin);
+  localStorage.setItem('kharchbook-lock-type', 'pin');
+  alert('PIN lock enabled!');
+  menuPinBtn.textContent = '🔓 Remove Screen Lock';
+  closeSideMenu();
+}
 
 // ===== FULL BACKUP (JSON) =====
 function createBackup() {
