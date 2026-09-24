@@ -177,16 +177,21 @@
   </nav>
 
   <!-- ===== PIN LOCK SCREEN ===== -->
-  <div id="pin-lock-screen" class="pin-lock-screen hidden">
-    <div class="pin-lock-box">
-      <p class="pin-lock-title">🔒 KharchBook Locked</p>
-      <input type="password" id="pin-input" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit PIN">
-      <button id="pin-unlock-btn" class="primary-btn">Unlock</button>
-      <p id="pin-error" class="pin-error hidden">Incorrect PIN. Try again.</p>
-      <button id="pin-forgot-btn" class="text-btn pin-forgot-btn">Forgot PIN? Reset lock</button>
-    </div>
-  </div>
+  
+ <div id="pin-lock-screen" class="pin-lock-screen hidden">
+  <div class="pin-lock-box">
+    <p class="pin-lock-title">🔒 KharchBook Locked</p>
 
+    <button id="device-unlock-btn" class="primary-btn hidden">Unlock with Fingerprint / Pattern</button>
+
+    <input type="password" id="pin-input" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit PIN">
+    <button id="pin-unlock-btn" class="primary-btn">Unlock</button>
+
+    <p id="pin-error" class="pin-error hidden">Incorrect PIN. Try again.</p>
+    <button id="pin-forgot-btn" class="text-btn pin-forgot-btn">Forgot PIN / lock? Reset</button>
+  </div>
+</div>
+  
   <!-- ===== SIDE MENU ===== -->
   <div id="side-menu-overlay" class="side-menu-overlay hidden"></div>
  <nav id="side-menu" class="side-menu hidden">
