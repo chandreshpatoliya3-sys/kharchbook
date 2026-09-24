@@ -51,6 +51,7 @@ const restoreBtn = document.getElementById('restore-btn');
 const restoreInput = document.getElementById('restore-input');
 const menuCategoriesBtn = document.getElementById('menu-categories-btn');
 const menuRecurringBtn = document.getElementById('menu-recurring-btn');
+const deviceUnlockBtn = document.getElementById('device-unlock-btn');
 
 // ===== CATEGORIES =====
 const DEFAULT_EXPENSE_CATEGORIES = ['Food', 'Travel', 'Shopping', 'Bills', 'Medical', 'Entertainment', 'Other'];
@@ -1635,7 +1636,9 @@ clearFiltersBtn.addEventListener('click', function () {
 
 // ===== INITIAL LOAD =====
 applyDarkMode(loadDarkModePref());
-if (loadPin()) { menuPinBtn.textContent = '🔓 Remove PIN Lock'; }
+const initialLockType = localStorage.getItem('kharchbook-lock-type');
+if (initialLockType) { menuPinBtn.textContent = '🔓 Remove Screen Lock'; }
+checkPinLock();
 checkPinLock();
 refreshCategories();
 processRecurring();
