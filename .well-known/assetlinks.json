@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "io.github.chandreshpatoliya3_sys.twa",
-        "sha256_cert_fingerprints": ["B4:A6:0F:6A:5B:FF:8E:8B:F9:E1:70:9D:17:4D:C3:6C:D4:2B:B5:64:56:96:A3:99:08:23:26:66:77:1A:56:00"]
+        "sha256_cert_fingerprints": ["43:3C:62:14:D8:59:93:87:55:2B:BF:5F:7C:33:0E:7B:D9:DA:FB:22:F8:44:48:95:CA:E0:31:A6:18:8D:72:79"]
       }
     }]
