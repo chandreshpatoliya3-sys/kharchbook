@@ -56,9 +56,14 @@
     </section>
 
     <section class="category-breakdown">
-      <h2>Category-wise Spending</h2>
-      <div id="category-breakdown-container"></div>
-    </section>
+  <h2>Category-wise Spending</h2>
+  <div class="period-toggle" id="dashboard-period-toggle">
+    <button class="period-btn active" data-period="month">This Month</button>
+    <button class="period-btn" data-period="year">This Year</button>
+    <button class="period-btn" data-period="all">All Time</button>
+  </div>
+  <div id="category-breakdown-container"></div>
+</section>
 
     <section class="recent-expenses">
       <h2>Recent Expenses</h2>
@@ -162,7 +167,12 @@
     <h2 class="list-title">This Month vs Last Month</h2>
     <div id="trend-chart-container" class="trend-chart-wrapper"></div>
     <h2 class="list-title">Spending by Category</h2>
-    <div id="pie-chart-container" class="pie-chart-wrapper"></div>
+<div class="period-toggle" id="stats-period-toggle">
+  <button class="period-btn active" data-period="month">This Month</button>
+  <button class="period-btn" data-period="year">This Year</button>
+  <button class="period-btn" data-period="all">All Time</button>
+</div>
+<div id="pie-chart-container" class="pie-chart-wrapper"></div>
         <div id="stats-chart-container"></div>
     <button id="export-pdf-btn" class="secondary-btn">📄 Export Stats as PDF</button>
   </main>
