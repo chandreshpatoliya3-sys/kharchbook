@@ -87,6 +87,22 @@ function refreshCategories() {
   renderFilterCategoryOptions();
 }
 
+// month vise
+let statsPeriod = 'month';
+let dashboardPeriod = 'month';
+
+function filterByPeriod(expenses, period) {
+  if (period === 'all') return expenses;
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  return expenses.filter(function (exp) {
+    const d = toDate(exp.date);
+    if (period === 'year') return d.getFullYear() === currentYear;
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  });
+}
+
 // Fills the filter dropdown on the Expenses screen
 function renderFilterCategoryOptions() {
   if (!filterCategory) return;
@@ -452,7 +468,7 @@ function updateDashboardSummary() {
   cardAmounts[1].textContent = '₹' + weekTotal;
   cardAmounts[2].textContent = '₹' + monthTotal;
 
-  renderCategoryBreakdown(expenses);
+  renderCategoryBreakdown(filterByPeriod(expenses, dashboardPeriod));
   renderBudgetTracker(monthExpenses);
 }
 
@@ -648,8 +664,9 @@ function attachExpenseClickHandlers(container, expenses) {
 // ===== STATISTICS BAR CHART =====
 function renderStatsChart() {
   renderTrendChart();
-  const expenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
-  renderPieChart(expenses);
+ const allExpenses = loadExpenses().filter(function (e) { return getType(e) === 'expense'; });
+const expenses = filterByPeriod(allExpenses, statsPeriod);
+renderPieChart(expenses);
   const container = document.getElementById('stats-chart-container');
 
   if (expenses.length === 0) {
@@ -977,6 +994,25 @@ function setupPinFallback() {
   menuPinBtn.textContent = '🔓 Remove Screen Lock';
   closeSideMenu();
 }
+
+// new .addEventListner
+document.querySelectorAll('#stats-period-toggle .period-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#stats-period-toggle .period-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    statsPeriod = btn.dataset.period;
+    renderStatsChart();
+  });
+});
+
+document.querySelectorAll('#dashboard-period-toggle .period-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#dashboard-period-toggle .period-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    dashboardPeriod = btn.dataset.period;
+    updateDashboardSummary();
+  });
+});
 
 // ===== FULL BACKUP (JSON) =====
 function createBackup() {
