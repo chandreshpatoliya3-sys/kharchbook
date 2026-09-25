@@ -137,6 +137,11 @@ function getType(entry) {
   return entry.type || 'expense';
 }
 
+// Shared helper: convert stored "YYYY-MM-DD" into a real Date object
+function toDate(dateStr) {
+  return new Date(dateStr + 'T00:00:00');
+}
+
 // Convert stored "2026-09-21" into display "21-09-2026"
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -1760,7 +1765,6 @@ clearFiltersBtn.addEventListener('click', function () {
 applyDarkMode(loadDarkModePref());
 const initialLockType = localStorage.getItem('kharchbook-lock-type');
 if (initialLockType) { menuPinBtn.textContent = '🔓 Remove Screen Lock'; }
-checkPinLock();
 checkPinLock();
 refreshCategories();
 processRecurring();
