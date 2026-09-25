@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kharchbook-cache-v10';
+const CACHE_NAME = 'kharchbook-cache-v11';
 
 const FILES_TO_CACHE = [
   './',
