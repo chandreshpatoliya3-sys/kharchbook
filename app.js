@@ -860,6 +860,11 @@ function removePin() {
 }
 
 function checkPinLock() {
+  if (sessionStorage.getItem('kharchbook-unlocked') === 'true') {
+    pinLockScreen.classList.add('hidden');
+    return;
+  }
+
   const lockType = localStorage.getItem('kharchbook-lock-type');
   if (lockType === 'device') {
     pinLockScreen.classList.remove('hidden');
@@ -878,6 +883,7 @@ function checkPinLock() {
 
 pinUnlockBtn.addEventListener('click', function () {
   if (pinInput.value === loadPin()) {
+    sessionStorage.setItem('kharchbook-unlocked', 'true');
     pinLockScreen.classList.add('hidden');
     pinInput.value = '';
     pinError.classList.add('hidden');
@@ -885,6 +891,7 @@ pinUnlockBtn.addEventListener('click', function () {
     pinError.classList.remove('hidden');
   }
 });
+
 deviceUnlockBtn.addEventListener('click', async function () {
   const idBase64 = localStorage.getItem('kharchbook-device-credential');
   if (!idBase64) return;
@@ -898,6 +905,7 @@ deviceUnlockBtn.addEventListener('click', async function () {
         timeout: 60000
       }
     });
+    sessionStorage.setItem('kharchbook-unlocked', 'true');
     pinLockScreen.classList.add('hidden');
     pinError.classList.add('hidden');
   } catch (err) {
