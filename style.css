@@ -864,3 +864,29 @@ body {
 
 /* Stack the backup buttons neatly */
 #backup-btn, #restore-btn { margin-top: 9px; }
+
+.kb-alert-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,14,18,.45);
+  z-index: 320;
+  backdrop-filter: blur(2px);
+}
+.kb-alert-box {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 82%; max-width: 320px;
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 26px 22px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  z-index: 321;
+}
+.kb-alert-message {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+  margin-bottom: 18px;
+  white-space: pre-line;
+}
