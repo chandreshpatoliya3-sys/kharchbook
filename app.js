@@ -425,9 +425,11 @@ function updateDashboardSummary() {
   const incomes = allEntries.filter(function (e) { return getType(e) === 'income'; });
   const today = new Date();
 
-  // ----- BALANCE -----
-  const totalIncome = incomes.reduce(function (sum, e) { return sum + e.amount; }, 0);
-  const totalSpent = expenses.reduce(function (sum, e) { return sum + e.amount; }, 0);
+  // ----- BALANCE (matches the This Month / This Year / All Time toggle) -----
+  const periodIncomes = filterByPeriod(incomes, dashboardPeriod);
+  const periodExpenses = filterByPeriod(expenses, dashboardPeriod);
+  const totalIncome = periodIncomes.reduce(function (sum, e) { return sum + e.amount; }, 0);
+  const totalSpent = periodExpenses.reduce(function (sum, e) { return sum + e.amount; }, 0);
   const balance = totalIncome - totalSpent;
 
   document.getElementById('balance-amount').textContent = '₹' + balance;
@@ -473,7 +475,7 @@ function updateDashboardSummary() {
   cardAmounts[1].textContent = '₹' + weekTotal;
   cardAmounts[2].textContent = '₹' + monthTotal;
 
-  renderCategoryBreakdown(filterByPeriod(expenses, dashboardPeriod));
+  renderCategoryBreakdown(periodExpenses);
   renderBudgetTracker(monthExpenses);
 }
 
@@ -1052,7 +1054,37 @@ function createBackup() {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 
-  alert('Backup saved to your Downloads folder.\n\nKeep a copy in Google Drive or email it to yourself!');
+  showAlert('Backup saved to your Downloads folder.\n\nKeep a copy in Google Drive or email it to yourself!');
+}
+
+// Custom popup that doesn't leak the site's domain, unlike native alert()
+function showAlert(message) {
+  let overlay = document.getElementById('kb-alert-overlay');
+  let box = document.getElementById('kb-alert-box');
+
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'kb-alert-overlay';
+    overlay.className = 'kb-alert-overlay hidden';
+    document.body.appendChild(overlay);
+
+    box = document.createElement('div');
+    box.id = 'kb-alert-box';
+    box.className = 'kb-alert-box hidden';
+    document.body.appendChild(box);
+  }
+
+  box.innerHTML = `
+    <p class="kb-alert-message">${message}</p>
+    <button class="primary-btn" id="kb-alert-ok">OK</button>
+  `;
+  box.querySelector('#kb-alert-ok').addEventListener('click', function () {
+    overlay.classList.add('hidden');
+    box.classList.add('hidden');
+  });
+
+  overlay.classList.remove('hidden');
+  box.classList.remove('hidden');
 }
 
 // ===== RESTORE FROM BACKUP =====
